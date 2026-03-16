@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minor ii-V-i Voicing Explorer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0efec; min-height: 100vh; padding: 1.5rem; }
+.app { max-width: 640px; margin: 0 auto; background: #fff; border: 0.5px solid #ccc; border-radius: 12px; overflow: hidden; }
+
+.app-header { background: #1a2e44; padding: 12px 16px; display: flex; align-items: baseline; gap: 10px; }
+.app-title  { color: #e8f0f8; font-size: 14px; font-weight: 500; }
+.app-sub    { color: #7aa4cc; font-size: 11px; }
+
+.controls   { padding: 12px 16px; border-bottom: 0.5px solid #ddd; display: flex; flex-direction: column; gap: 10px; background: #f8f8f6; }
+.ctrl-row   { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctrl-label { font-size: 11px; color: #666; width: 114px; flex-shrink: 0; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+.btn-group  { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.btn { font-size: 11px; padding: 4px 9px; border-radius: 8px; border: 0.5px solid #bbb; background: #fff; color: #555; cursor: pointer; font-family: Arial, sans-serif; font-weight: 400; line-height: 1.4; white-space: nowrap; }
+.btn:hover { background: #f0f0ee; }
+.btn.ab  { background: #1a4a7a; border-color: #1a4a7a; color: #d0e8f8; font-weight: 500; }
+.btn.ag  { background: #2a6a2a; border-color: #2a6a2a; color: #c8eac8; font-weight: 500; }
+.btn.ak  { background: #2c2c2a; border-color: #2c2c2a; color: #e8e8e6; font-weight: 500; }
+
+.number-input { display: flex; align-items: center; gap: 6px; }
+.num-btn { width: 26px; height: 26px; border-radius: 8px; border: 0.5px solid #bbb; background: #fff; color: #222; font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; user-select: none; }
+.num-btn:hover { background: #f0f0ee; }
+.num-val  { font-size: 13px; font-weight: 500; color: #222; width: 20px; text-align: center; }
+.num-hint { font-size: 10px; color: #888; margin-left: 4px; }
+
+select.isel { font-size: 11px; padding: 4px 8px; border-radius: 8px; border: 0.5px solid #bbb; background: #fff; color: #222; font-family: Arial, sans-serif; cursor: pointer; }
+
+.dir-toggle { display: flex; border: 0.5px solid #bbb; border-radius: 8px; overflow: hidden; }
+.dir-btn { font-size: 11px; padding: 4px 10px; border: none; background: #fff; color: #555; cursor: pointer; font-family: Arial, sans-serif; font-weight: 400; display: flex; align-items: center; gap: 3px; line-height: 1.4; }
+.dir-btn + .dir-btn { border-left: 0.5px solid #bbb; }
+.dir-btn.active { background: #1a4a7a; color: #d0e8f8; font-weight: 500; }
+.dir-btn:not(.active):hover { background: #f0f0ee; }
+
+.sep { height: 0.5px; background: #e0e0de; margin: 2px 0; }
+
+/* Rule badge */
+.rule-badge { font-size: 10px; color: #555; background: #f0efec; border: 0.5px solid #ccc; border-radius: 6px; padding: 2px 8px; margin-left: 6px; }
+.rule-badge.switch { background: #fff3e0; border-color: #d4a030; color: #8a5000; }
+.rule-badge.stay   { background: #e8f4e8; border-color: #4a8a4a; color: #2a5a2a; }
+
+/* Grid area */
+.grid-area { padding: 14px 16px 2px; display: flex; flex-direction: column; }
+.grid-block { margin-bottom: 0; }
+.grid-key-label { font-size: 10px; color: #666; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.type-badge { font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 4px; }
+.type-A { background: #1a4a7a; color: #d0e8f8; }
+.type-B { background: #2c2c2a; color: #e8e8e6; }
+
+.chord-grid { border: 1.5px solid #333; border-radius: 4px; overflow: hidden; width: 100%; }
+.chord-grid-header { background: #333; color: #fff; font-size: 11px; font-weight: 500; padding: 5px 10px; text-align: center; }
+.chord-grid table { width: 100%; border-collapse: collapse; }
+.chord-grid th { background: #eee; font-size: 10px; font-weight: 500; padding: 4px 6px; text-align: center; border-bottom: 1px solid #ccc; color: #333; }
+.chord-grid td { padding: 5px 6px; text-align: center; font-size: 13px; border-bottom: 1px solid #eee; font-weight: 500; color: #111; }
+.chord-grid tr:last-child td { border-bottom: none; }
+.chord-grid td.bot { background: #f5f5f5; font-weight: 700; color: #990000; }
+.iv { font-size: 9px; color: #888; display: block; font-weight: 400; }
+
+/* Connector */
+.connector-wrap { display: flex; align-items: center; gap: 6px; margin: 10px 0; }
+.conn-line  { flex: 1; height: 0.5px; background: #bbb; }
+.conn-inner { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.conn-tag   { font-size: 10px; color: #555; background: #f8f8f6; border: 0.5px solid #bbb; border-radius: 10px; padding: 3px 10px; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.conn-rule  { font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 4px; }
+.conn-rule.switch { background: #fff3e0; border: 0.5px solid #d4a030; color: #8a5000; }
+.conn-rule.stay   { background: #e8f4e8; border: 0.5px solid #4a8a4a; color: #2a5a2a; }
+.conn-voices { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.conn-voice  { display: flex; align-items: center; gap: 3px; font-size: 10px; background: #fff; border: 0.5px solid #ddd; border-radius: 6px; padding: 2px 6px; white-space: nowrap; }
+.fn    { font-size: 9px; font-weight: 600; background: #2c2c2a; color: #e8e8e6; border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
+.nfrom { color: #aaa; font-size: 9px; }
+.narr  { color: #bbb; font-size: 9px; margin: 0 1px; }
+.nto   { color: #222; font-size: 10px; font-weight: 600; }
+.mstays { color: #bbb; font-size: 9px; }
+.mup    { color: #1a6a1a; font-size: 9px; font-weight: 600; }
+.mdown  { color: #900;    font-size: 9px; font-weight: 600; }
+.mjump  { color: #8a5000; font-size: 9px; font-weight: 600; }
+.conn-ref { font-size: 9px; color: #aaa; text-align: center; }
+
+/* Fingering */
+.fingering-section { margin: 12px 16px 16px; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; }
+.fingering-header  { background: #1a2e44; color: #e8f0f8; font-size: 12px; font-weight: 500; padding: 7px 12px; }
+.fingering-body    { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; background: #f8f8f6; }
+.f-row  { font-size: 11px; color: #222; line-height: 1.65; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+.f-label { font-weight: 500; color: #111; white-space: nowrap; }
+.f-sub   { color: #444; }
+.pill    { display: inline-flex; align-items: center; background: #fff; border: 0.5px solid #bbb; border-radius: 10px; font-size: 10px; font-weight: 500; padding: 1px 7px; color: #333; white-space: nowrap; vertical-align: middle; }
+.pill-lh { background: #1a4a7a; border-color: #1a4a7a; color: #d0e8f8; }
+.pill-rh { background: #2a6a2a; border-color: #2a6a2a; color: #c8eac8; }
+.f-div   { height: 0.5px; background: #ddd; }
+.f-hi    { background: #fff; border: 0.5px solid #ccc; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #222; line-height: 1.65; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px; }
+
+/* Legend */
+.legend { margin: 0 16px 12px; padding: 7px 10px; background: #f8f8f6; border: 0.5px solid #ddd; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 10px; }
+.leg-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #555; }
+.leg-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.leg-sq   { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="app-header">
+    <span class="app-title">Minor ii-V-i Voicing Explorer</span>
+    <span class="app-sub">4-note one-handed · all 12 keys · JPF Book 2</span>
+  </div>
+
+  <div class="controls">
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Start voicing</span>
+      <div class="btn-group">
+        <button class="btn ab" id="btn-typeA" onclick="setType('A')">Type A</button>
+        <button class="btn"    id="btn-typeB" onclick="setType('B')">Type B</button>
+      </div>
+      <span style="font-size:10px;color:#888;margin-left:4px;">for grid 1 — subsequent grids auto-switch</span>
+    </div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Key</span>
+      <div class="btn-group" id="key-btns"></div>
+    </div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Formula</span>
+      <div class="btn-group">
+        <button class="btn ag" id="btn-HN" onclick="setFormula('HN')">HN</button>
+        <button class="btn"    id="btn-LN" onclick="setFormula('LN')">LN</button>
+        <button class="btn"    id="btn-R"  onclick="setFormula('R')">R</button>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Grids</span>
+      <div class="number-input">
+        <div class="num-btn" onclick="setNumGrids(S.grids-1)">&#8722;</div>
+        <span class="num-val" id="num-val">2</span>
+        <div class="num-btn" onclick="setNumGrids(S.grids+1)">+</div>
+        <span class="num-hint">1&#8211;12</span>
+      </div>
+    </div>
+
+    <div class="ctrl-row">
+      <span class="ctrl-label">Grid connection</span>
+      <select class="isel" id="isel" onchange="setInterval(this.value)">
+        <option>Half step</option>
+        <option selected>Whole step</option>
+        <option>Minor 3rd</option>
+        <option>Major 3rd</option>
+        <option>4th</option>
+        <option>5th</option>
+        <option>Minor 6th</option>
+        <option>Major 6th</option>
+      </select>
+      <div class="dir-toggle">
+        <button class="dir-btn active" id="btn-down" onclick="setDir('down')">&#8595; Down</button>
+        <button class="dir-btn"        id="btn-up"   onclick="setDir('up')">&#8593; Up</button>
+      </div>
+      <span class="rule-badge" id="switch-badge"></span>
+    </div>
+
+  </div>
+
+  <div class="grid-area" id="grid-area"></div>
+
+  <div class="legend" id="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#1a6a1a"></div><span>voice moves up</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#900"></div><span>voice moves down</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#bbb"></div><span>voice stays</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#8a5000"></div><span>large leap (4th+)</span></div>
+    <div class="leg-item"><div class="leg-sq" style="background:#fff3e0;border:0.5px solid #d4a030"></div><span>type switches</span></div>
+    <div class="leg-item"><div class="leg-sq" style="background:#e8f4e8;border:0.5px solid #4a8a4a"></div><span>type stays</span></div>
+  </div>
+
+  <div class="fingering-section">
+    <div class="fingering-header">Finger movement</div>
+    <div class="fingering-body">
+      <div class="f-row">
+        <span class="f-label">LH</span>
+        <span class="pill pill-lh">1 root</span>
+        <span class="pill pill-lh">5 fifth</span>
+      </div>
+      <div class="f-row" id="rh-row"></div>
+      <div class="f-div"></div>
+      <div class="f-row" id="ii-v-row"></div>
+      <div class="f-row" id="v-i-row"></div>
+      <div class="f-row" id="i-ii-row"></div>
+      <div class="f-div"></div>
+      <div class="f-hi" id="lh-upper-row"></div>
+    </div>
+  </div>
+
+
+
+  <!-- Manual button -->
+  <div style="padding: 0 16px 16px; margin-top: -8px;">
+    <button onclick="toggleManual()"
+      style="width:100%;padding:8px;font-size:12px;font-weight:500;border-radius:8px;border:1px solid #2a6a2a;background:#fff;color:#2a6a2a;cursor:pointer;font-family:Arial,sans-serif;">
+      &#128218;&nbsp; Read me — manual
+    </button>
+  </div>
+
+  <!-- Manual panel -->
+  <div id="manual-panel" style="display:none; margin: 0 16px 20px; border:1px solid #ccc; border-radius:10px; overflow:hidden; font-family:Arial,sans-serif;">
+
+    <div style="background:#1a2e44; color:#e8f0f8; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:13px; font-weight:500;">Manual — Minor ii-V-i Voicing Explorer</span>
+      <button onclick="toggleManual()" style="background:none;border:none;color:#7aa4cc;font-size:16px;cursor:pointer;padding:0 4px;">&#10005;</button>
+    </div>
+
+    <div style="padding:14px 16px; background:#f8f8f6; display:flex; flex-direction:column; gap:14px; font-size:11px; color:#222; line-height:1.7;">
+
+      <!-- Intro -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:5px;">What is this app?</div>
+        <p>This tool generates four-note, one-handed minor ii-V-i voicings for all 12 keys, based on the formulas in <em>Jazz Piano Fundamentals Book 2</em> by Jeremy Siskind. It is designed as a practice reference — configure your settings, see the voicings, and understand the finger movements between chords and between keys.</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Controls -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:8px;">Controls</div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+
+          <div>
+            <span style="font-weight:600;">Start Voicing — Type A / Type B</span>
+            <p style="margin-top:3px;">Sets the voicing type for the first grid. Type A starts with the <strong>b3</strong> as the bottom note; Type B starts with the <strong>b7</strong>. Subsequent grids auto-switch based on the interval rule (see below).</p>
+          </div>
+
+          <div>
+            <span style="font-weight:600;">Key</span>
+            <p style="margin-top:3px;">Sets the starting minor key for grid 1. All 12 keys are available. Enharmonic pairs (e.g. F#/Gb) are shown together as a single button. The app uses the appropriate sharp or flat spelling for each key automatically.</p>
+          </div>
+
+          <div>
+            <span style="font-weight:600;">Formula — HN / LN / R</span>
+            <p style="margin-top:3px;">Selects which of the three minor ii-V-i voicing formulas to use:</p>
+            <ul style="margin:4px 0 0 16px; display:flex; flex-direction:column; gap:3px;">
+              <li><strong>HN (Higher Ninth)</strong> — uses the higher (natural) 9th on the ii chord; the V chord uses the flat 13th. The i chord resolves to a minor 6th chord.</li>
+              <li><strong>LN (Lower Ninth)</strong> — uses the flat 9th on the ii chord; the V chord uses the natural 5th (Type A) or flat 13th (Type B, to avoid a stack of thirds). The i chord resolves to a minor-major 7th chord.</li>
+              <li><strong>R (Root)</strong> — replaces the 9th on the ii chord with the chord root. The V chord uses the natural 5th or flat 13th (both are shown as 5/b13). The i chord resolves to a minor 6th chord.</li>
+            </ul>
+          </div>
+
+          <div>
+            <span style="font-weight:600;">Grids (1–12)</span>
+            <p style="margin-top:3px;">Sets how many ii-V-i grids to display. Each grid represents a complete minor ii-V-i progression in a new key. Use the <strong>+</strong> and <strong>−</strong> buttons to add or remove grids. With more than one grid, connectors appear between grids showing how each voice moves from the i chord of one key to the ii chord of the next.</p>
+          </div>
+
+          <div>
+            <span style="font-weight:600;">Grid Connection — interval &amp; direction</span>
+            <p style="margin-top:3px;">Sets the interval between consecutive starting keys. Options: Half step, Whole step, Minor 3rd, Major 3rd, 4th, 5th, Minor 6th, Major 6th. The <strong>↓ Down</strong> and <strong>↑ Up</strong> toggle sets whether each new key is lower or higher than the previous one. Defaults to down.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Voicing grids -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:6px;">Reading the voicing grids</div>
+        <p>Each grid shows the ii, V, and i chords for one minor key. Notes are displayed <strong>top to bottom</strong> within each column — the top note is the highest pitch (finger 5), and the <strong>red bottom row</strong> is the lowest note (finger 1 / thumb). The small label beneath each note shows its function in the chord (e.g. b3, b7, 9).</p>
+        <p style="margin-top:6px;">When a voice shows <strong>5/b13</strong> as its label, the note name shows both options — e.g. <em>B/C</em> on an E7 chord. Both are valid; the flat 13th adds more colour.</p>
+        <p style="margin-top:6px;">A <strong>Type A</strong> or <strong>Type B</strong> badge appears next to each grid label so you always know which voicing type is in use.</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Type switching rule -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:6px;">Type A / B switching rule</div>
+        <p>This rule comes directly from <em>JPF Book 1</em> (p. 94). When moving from one key to the next:</p>
+        <ul style="margin:5px 0 0 16px; display:flex; flex-direction:column; gap:3px;">
+          <li><strong>Half step or whole step</strong> — keep the same type. Step motion creates smooth voice leading without switching.</li>
+          <li><strong>Minor 3rd or larger</strong> — switch type (A→B or B→A). Larger intervals need alternation for smooth voice leading.</li>
+        </ul>
+        <p style="margin-top:6px;">The app applies this automatically. A green <em>"type stays"</em> or amber <em>"type A↔B"</em> badge appears on each connector and in the controls row.</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Connectors -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:6px;">Connectors — i → new ii voice leading</div>
+        <p>Between grids, a connector shows how each of the four voices moves from the <strong>i chord of one key</strong> to the <strong>ii chord of the next key</strong>. Each box shows the finger number, the note it leaves, the note it arrives at, and the direction and size of the move:</p>
+        <ul style="margin:5px 0 0 16px; display:flex; flex-direction:column; gap:2px;">
+          <li><span style="color:#1a6a1a;font-weight:600;">↑ green</span> — voice moves up</li>
+          <li><span style="color:#900;font-weight:600;">↓ red</span> — voice moves down</li>
+          <li style="color:#888;">= grey — voice stays on the same note</li>
+          <li><span style="color:#8a5000;font-weight:600;">amber</span> — large leap (4th or more)</li>
+        </ul>
+        <p style="margin-top:6px;">The connector uses real octave-aware MIDI positions so directions are always physically correct — a voice shown moving up actually moves up, even for large intervals like a 5th.</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Finger movement -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:6px;">Finger movement panel</div>
+        <p>The panel at the bottom summarises the right-hand fingering for the three chord movements within a single ii-V-i:</p>
+        <ul style="margin:5px 0 0 16px; display:flex; flex-direction:column; gap:3px;">
+          <li><strong>LH</strong> — finger 1 plays the root, finger 5 plays the fifth.</li>
+          <li><strong>ii → V</strong> — Type A: fingers 1 and 2 stay; fingers 3 and 5 each drop a half step. Type B: fingers 1 and 2 each drop a half step; fingers 3 and 5 stay.</li>
+          <li><strong>V → i</strong> — All voices descend: fingers 1 and 3 each drop a whole step; fingers 2 and 5 each drop a half step.</li>
+          <li><strong>i → new ii</strong> — See the connectors between grids. Movements depend on the selected interval and whether the type switches.</li>
+        </ul>
+        <p style="margin-top:6px;">The <strong>LH upper voices</strong> box at the bottom shows the left-hand fingering when playing the voicing in the left hand: 5-4-2-1 for the ii chord and 5-3-2-1 for the V and i chords (or reversed for Type B).</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Print -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:6px;">Download print sheet</div>
+        <p>The <strong>"Download print sheet — all 12 keys"</strong> button generates a single-page reference sheet showing the current configuration across all 12 starting keys in a 3-column grid. The file downloads as <em>minor-251-all-12-keys.html</em>. Open it in any browser and print or save as PDF. The config summary (type, formula, grids, interval, direction) is printed at the top of the sheet.</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <!-- Magic range note -->
+      <div>
+        <div style="font-size:12px;font-weight:600;color:#1a2e44;margin-bottom:5px;">Magic range / ideal register</div>
+        <p>The red bottom note of each voicing should fall between <strong>C3 and C4</strong> (the octave below middle C). This is the "ideal register" from JPF Book 1 p. 88. If the bottom note drifts too low, use the typewriter-jump technique: flip voicing type (A↔B) or move up an octave to stay in range.</p>
+      </div>
+
+      <div style="height:0.5px;background:#ddd;"></div>
+
+      <div style="font-size:10px;color:#888;text-align:center;">Based on Jazz Piano Fundamentals Books 1 &amp; 2 by Jeremy Siskind</div>
+
+    </div>
+  </div>
+
+  <!-- Print button -->
+  <div style="padding: 0 16px 16px;">
+    <button onclick="printAllKeys()"
+      style="width:100%;padding:8px;font-size:12px;font-weight:500;border-radius:8px;border:1px solid #1a2e44;background:#fff;color:#1a2e44;cursor:pointer;font-family:Arial,sans-serif;">
+      &#11015;&nbsp; Download print sheet — all 12 keys
+    </button>
+  </div>
+
+</div>
+<script>
+// ── Manual toggle ─────────────────────────────────────────────────────────────
+function toggleManual() {
+  var p = document.getElementById('manual-panel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var S = { type:'A', key:0, formula:'HN', grids:2, interval:'Whole step', dir:'down' };
+
+// ── Note spelling ─────────────────────────────────────────────────────────────
+var FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+var SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+var USE_SHARP = [1,4,6,9,11];
+var KEY_LABELS = ['C','Db/C#','D','Eb/D#','E','F','F#/Gb','G','Ab/G#','A','Bb/A#','B'];
+var KEY_NAMES  = ['C','Db','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+
+// ── Voicing data ──────────────────────────────────────────────────────────────
+var IV = {
+  HN:{ A:{ ii:[3,6,10,2], V:[10,1,4,8], i:[3,7,9,2]  },
+       B:{ ii:[10,2,3,6],  V:[4,8,10,1], i:[9,2,3,7]  } },
+  LN:{ A:{ ii:[3,6,10,1], V:[10,1,4,7], i:[3,7,11,2] },
+       B:{ ii:[10,1,3,6],  V:[4,8,10,1], i:[11,2,3,7] } },
+  R: { A:{ ii:[3,6,10,0], V:[10,1,4,7], i:[3,7,9,2]  },
+       B:{ ii:[10,0,3,6],  V:[4,7,10,1], i:[9,2,3,7]  } }
+};
+var LBL = {
+  HN:{ A:{ ii:['b3','b5','b7','9'],    V:['b7','b9','3','b13'], i:['b3','5','6','9']   },
+       B:{ ii:['b7','9','b3','b5'],     V:['3','b13','b7','b9'], i:['6','9','b3','5']   } },
+  LN:{ A:{ ii:['b3','b5','b7','b9'],   V:['b7','b9','3','5/b13'],   i:['b3','5','M7','9']  },
+       B:{ ii:['b7','b9','b3','b5'],    V:['3','b13','b7','b9'], i:['M7','9','b3','5']  } },
+  R: { A:{ ii:['b3','b5','b7','root'],  V:['b7','b9','3','5/b13'],   i:['b3','5','6','9']   },
+       B:{ ii:['b7','root','b3','b5'],  V:['3','5/b13','b7','b9'],   i:['6','9','b3','5']   } }
+};
+var IST = { 'Half step':1,'Whole step':2,'Minor 3rd':3,'Major 3rd':4,
+            '4th':5,'5th':7,'Minor 6th':8,'Major 6th':9 };
+
+// ── Type-switching rule (JPF Book 1 p.94) ────────────────────────────────────
+// Stay same type when root moves by step (≤2 semitones); switch otherwise.
+function shouldSwitch(intervalSt) {
+  return intervalSt > 2;
+}
+function nextType(currentType, intervalSt) {
+  if (shouldSwitch(intervalSt)) return currentType === 'A' ? 'B' : 'A';
+  return currentType;
+}
+
+// ── Build grid type sequence ──────────────────────────────────────────────────
+function gridSequence() {
+  var ivSt  = IST[S.interval];
+  var sign  = S.dir === 'down' ? -1 : 1;
+  var seq   = [];
+  var kr    = S.key;
+  var type  = S.type;
+  for (var g = 0; g < S.grids; g++) {
+    seq.push({ key: kr, type: type });
+    var nkr  = ((kr + sign * ivSt) + 120) % 12;
+    var ntype = nextType(type, ivSt);
+    kr   = nkr;
+    type = ntype;
+  }
+  return seq;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function noteName(pc, kr) { return USE_SHARP.indexOf(kr) >= 0 ? SHARP[pc] : FLAT[pc]; }
+function chordRoot(kr, chord) { return chord==='ii'?(kr+2)%12:chord==='V'?(kr+7)%12:kr; }
+
+function sym(kr, formula, type, chord) {
+  var cr = chordRoot(kr, chord);
+  var n  = noteName(cr, kr);
+  if (chord==='ii') return n+'&#248;7';
+  if (chord==='V')  return n+'7(b9)';
+  return KEY_NAMES[kr] + (formula==='LN' ? 'm(M7)' : 'm6');
+}
+
+function getVoices(kr, formula, type, chord) {
+  var cr   = chordRoot(kr, chord);
+  var lbls = LBL[formula][type][chord];
+  return IV[formula][type][chord].map(function(iv, idx) {
+    var pc   = (cr+iv)%12;
+    var name = noteName(pc, kr);
+    if (lbls[idx] === '5/b13') {
+      var b13pc   = (cr + iv + 1) % 12;
+      var b13name = noteName(b13pc, kr);
+      name = name + '/' + b13name;
+    }
+    return { pc: pc, name: name };
+  });
+}
+
+// MIDI placement: bottom voice in C3 range (48–59), each upper voice stacked above
+function voiceMidi(kr, formula, type, chord) {
+  var cr  = chordRoot(kr, chord);
+  var ivs = IV[formula][type][chord];
+  var pcs = ivs.map(function(iv){ return (cr+iv)%12; });
+  var v0  = 48 + pcs[0];
+  var midis = [v0];
+  for (var i = 1; i < pcs.length; i++) {
+    var prev = midis[i-1], pc = pcs[i];
+    var up = ((pc - (prev%12)) + 12) % 12;
+    if (up === 0) up = 12;
+    midis.push(prev + up);
+  }
+  return midis;
+}
+
+function mvLabel(st) {
+  if (st === 0) return '<span class="mstays">stays</span>';
+  var abs = Math.abs(st), up = st > 0;
+  var cls = abs >= 4 ? 'mjump' : (up ? 'mup' : 'mdown');
+  var dir = up ? '&#8593;' : '&#8595;';
+  var nm  = {1:'&frac12;',2:'W',3:'m3',4:'M3',5:'4th',6:'tri',7:'5th',8:'m6',9:'M6',10:'m7',11:'M7',12:'8ve'}[abs] || abs+'st';
+  return '<span class="'+cls+'">'+dir+nm+'</span>';
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  var seq      = gridSequence();
+  var ivSt     = IST[S.interval];
+  var switches = shouldSwitch(ivSt);
+  var dirArrow = S.dir==='down' ? '&#8595;' : '&#8593;';
+  var ivLabel  = S.interval.toLowerCase();
+  var fingers  = ['1','2','3','5'];
+  var html     = '';
+
+  // Update switch badge in controls
+  var badge = document.getElementById('switch-badge');
+  if (S.grids > 1) {
+    badge.className = 'rule-badge ' + (switches ? 'switch' : 'stay');
+    badge.textContent = switches ? 'type switches' : 'type stays';
+  } else {
+    badge.textContent = '';
+    badge.className = 'rule-badge';
+  }
+
+  for (var g = 0; g < seq.length; g++) {
+    var kr    = seq[g].key;
+    var type  = seq[g].type;
+    var kln   = KEY_NAMES[kr]+' minor';
+    var iiSy  = sym(kr, S.formula, type, 'ii');
+    var vSy   = sym(kr, S.formula, type, 'V');
+    var iSy   = sym(kr, S.formula, type, 'i');
+    var iiV   = getVoices(kr, S.formula, type, 'ii');
+    var vV    = getVoices(kr, S.formula, type, 'V');
+    var iV    = getVoices(kr, S.formula, type, 'i');
+    var iiL   = LBL[S.formula][type]['ii'];
+    var vL    = LBL[S.formula][type]['V'];
+    var iL    = LBL[S.formula][type]['i'];
+
+    html += '<div class="grid-block">';
+    html += '<div class="grid-key-label">Grid '+(g+1)+' &#8212; '+kln;
+    html += ' <span class="type-badge type-'+type+'">Type '+type+'</span>';
+    html += '</div>';
+    html += '<div class="chord-grid">';
+    html += '<div class="chord-grid-header">'+kln+' &#8212; '+iiSy+' &middot; '+vSy+' &middot; '+iSy+'</div>';
+    html += '<table><tr><th>'+iiSy+'</th><th>'+vSy+'</th><th>'+iSy+'</th></tr>';
+    for (var row = 3; row >= 0; row--) {
+      var bot = (row===0), c = bot?' class="bot"':'';
+      html += '<tr>';
+      html += '<td'+c+'>'+iiV[row].name+'<span class="iv">'+iiL[row]+'</span></td>';
+      html += '<td'+c+'>'+vV[row].name +'<span class="iv">'+vL[row] +'</span></td>';
+      html += '<td'+c+'>'+iV[row].name +'<span class="iv">'+iL[row] +'</span></td>';
+      html += '</tr>';
+    }
+    html += '</table></div></div>';
+
+    // Connector
+    if (g < seq.length - 1) {
+      var nkr   = seq[g+1].key;
+      var ntype = seq[g+1].type;
+      var nkln  = KEY_NAMES[nkr]+' minor';
+      var niiV  = getVoices(nkr, S.formula, ntype, 'ii');
+      var niiSy = sym(nkr, S.formula, ntype, 'ii');
+
+      var iMidi   = voiceMidi(kr,  S.formula, type,  'i');
+      var niiMidi = voiceMidi(nkr, S.formula, ntype, 'ii');
+
+      var ruleCls  = switches ? 'switch' : 'stay';
+      var ruleText = switches ? 'type A&#8596;B' : 'type stays';
+
+      html += '<div class="connector-wrap"><div class="conn-line"></div>';
+      html += '<div class="conn-inner">';
+      html += '<div class="conn-tag">'+dirArrow+' '+ivLabel+' &#8212; <strong>'+nkln+'</strong>';
+      html += ' <span class="conn-rule '+ruleCls+'">'+ruleText+'</span></div>';
+      html += '<div class="conn-voices">';
+      for (var v = 0; v < 4; v++) {
+        var st = niiMidi[v] - iMidi[v];
+        html += '<div class="conn-voice">';
+        html += '<span class="fn">'+fingers[v]+'</span>';
+        html += '<span class="nfrom">'+iV[v].name+'</span>';
+        html += '<span class="narr">&#8594;</span>';
+        html += '<span class="nto">'+niiV[v].name+'</span>';
+        html += ' '+mvLabel(st);
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '<div class="conn-ref">'+iSy+' &#8594; '+niiSy+'</div>';
+      html += '</div><div class="conn-line"></div></div>';
+    }
+  }
+
+  document.getElementById('grid-area').innerHTML = html;
+  document.getElementById('legend').style.display = seq.length > 1 ? 'flex' : 'none';
+  renderFingering(seq);
+}
+
+// ── Fingering section ─────────────────────────────────────────────────────────
+function p(t)   { return '<span class="pill">'+t+'</span>'; }
+function rhp(t) { return '<span class="pill pill-rh">'+t+'</span>'; }
+function lhp(t) { return '<span class="pill pill-lh">'+t+'</span>'; }
+function sub(t) { return '<span class="f-sub">'+t+'</span>'; }
+function lbl(t) { return '<span class="f-label">'+t+'</span>'; }
+
+var FG = {
+  A:{
+    rh:  lbl('RH')+sub('use')+rhp('1 thumb')+rhp('2')+rhp('3')+rhp('5')
+        +sub('throughout. ii chord built on the <strong>b3</strong> (bottom voice, finger 1).'),
+    iiV: lbl('ii &rarr; V &nbsp;')
+        +p('1 thumb')+sub('and')+p('2')+sub('stay constant.')+p('3')+sub('and')+p('5')
+        +sub('each drop &frac12; step.'),
+    Vi:  lbl('V &rarr; i &nbsp;')
+        +sub('All voices descend:')+p('5')+sub('drops &frac12;,')+p('3')
+        +sub('drops whole step,')+p('2')+sub('drops &frac12;,')+p('1 thumb')+sub('drops whole step.'),
+    lhIi:'5-4-2-1', lhVi:'5-3-2-1'
+  },
+  B:{
+    rh:  lbl('RH')+sub('use')+rhp('1 thumb')+rhp('2')+rhp('3')+rhp('5')
+        +sub('throughout. ii chord built on the <strong>b7</strong> (bottom voice, finger 1).'),
+    iiV: lbl('ii &rarr; V &nbsp;')
+        +p('1 thumb')+sub('and')+p('2')+sub('each drop &frac12; step.')+p('3')+sub('and')+p('5')
+        +sub('stay constant.'),
+    Vi:  lbl('V &rarr; i &nbsp;')
+        +sub('All voices descend:')+p('5')+sub('drops &frac12;,')+p('3')
+        +sub('drops whole step,')+p('2')+sub('drops &frac12;,')+p('1 thumb')+sub('drops whole step.'),
+    lhIi:'5-3-2-1', lhVi:'5-4-2-1'
+  }
+};
+
+function renderFingering(seq) {
+  var t1 = seq[0].type; // grid 1 type
+  var c  = FG[t1];
+  document.getElementById('rh-row').innerHTML   = c.rh;
+  document.getElementById('ii-v-row').innerHTML = c.iiV;
+  document.getElementById('v-i-row').innerHTML  = c.Vi;
+
+  var ivSt    = IST[S.interval];
+  var switches = shouldSwitch(ivSt);
+
+  // i → new ii description
+  var iii = lbl('i &rarr; new ii &nbsp;');
+  if (S.grids === 1) {
+    iii += sub('Add more grids to see the i&rarr;ii connection.');
+  } else if (switches) {
+    iii += sub('Root moves by <strong>'+S.interval.toLowerCase()+'</strong> — type switches (A&#8596;B). See connector(s) above for exact finger movements.');
+  } else {
+    iii += sub('Root moves by <strong>'+S.interval.toLowerCase()+'</strong> — type stays the same. See connector(s) above for exact finger movements.');
+  }
+  document.getElementById('i-ii-row').innerHTML = iii;
+
+  // LH upper voices — show both types if they differ across grids
+  var lhHtml = '';
+  if (switches && S.grids > 1) {
+    lhHtml = lbl('To play upper voices with LH:&nbsp;')
+      + sub('Type A ii:') + lhp('5-4-2-1') + sub('Type A V/i:') + lhp('5-3-2-1')
+      + sub('&nbsp;|&nbsp; Type B ii:') + lhp('5-3-2-1') + sub('Type B V/i:') + lhp('5-4-2-1');
+  } else {
+    lhHtml = lbl('To play upper voices with LH:&nbsp;')
+      + sub('Use') + lhp(c.lhIi) + sub('for the ii chord, and')
+      + lhp(c.lhVi) + sub('for the V and i chords.');
+  }
+  document.getElementById('lh-upper-row').innerHTML = lhHtml;
+}
+
+// ── State setters ─────────────────────────────────────────────────────────────
+function setType(t) {
+  S.type = t;
+  document.getElementById('btn-typeA').className = 'btn'+(t==='A'?' ab':'');
+  document.getElementById('btn-typeB').className = 'btn'+(t==='B'?' ab':'');
+  render();
+}
+function setKey(k) {
+  S.key = k;
+  document.querySelectorAll('[id^=kb-]').forEach(function(b,i){ b.className='btn'+(i===k?' ak':''); });
+  render();
+}
+function setFormula(f) {
+  S.formula = f;
+  ['HN','LN','R'].forEach(function(x){ document.getElementById('btn-'+x).className='btn'+(x===f?' ag':''); });
+  render();
+}
+function setInterval(iv) { S.interval=iv; render(); }
+function setDir(d) {
+  S.dir=d;
+  document.getElementById('btn-down').className='dir-btn'+(d==='down'?' active':'');
+  document.getElementById('btn-up').className  ='dir-btn'+(d==='up'  ?' active':'');
+  render();
+}
+function setNumGrids(n) {
+  S.grids=Math.max(1,Math.min(12,n));
+  document.getElementById('num-val').textContent=S.grids;
+  render();
+}
+
+
+// ── Print all 12 keys ─────────────────────────────────────────────────────────
+function buildGridHTML(kr, type, formula, grids, interval, dir) {
+  var ivSt     = IST[interval];
+  var sign     = dir === 'down' ? -1 : 1;
+  var switches = shouldSwitch(ivSt);
+  var dirArrow = dir === 'down' ? '↓' : '↑';
+  var ivLabel  = interval.toLowerCase();
+  var fingers  = ['1','2','3','5'];
+  var html     = '';
+
+  // Build grid sequence from this starting key/type
+  var seq = [];
+  var ck = kr, ct = type;
+  for (var g = 0; g < grids; g++) {
+    seq.push({ key: ck, type: ct });
+    ck = ((ck + sign * ivSt) + 120) % 12;
+    ct = nextType(ct, ivSt);
+  }
+
+  for (var g = 0; g < seq.length; g++) {
+    var gkr   = seq[g].key;
+    var gtype = seq[g].type;
+    var kln   = KEY_NAMES[gkr] + ' minor';
+    var iiSy  = sym(gkr, formula, gtype, 'ii');
+    var vSy   = sym(gkr, formula, gtype, 'V');
+    var iSy   = sym(gkr, formula, gtype, 'i');
+    var iiV   = getVoices(gkr, formula, gtype, 'ii');
+    var vV    = getVoices(gkr, formula, gtype, 'V');
+    var iV    = getVoices(gkr, formula, gtype, 'i');
+    var iiL   = LBL[formula][gtype]['ii'];
+    var vL    = LBL[formula][gtype]['V'];
+    var iL    = LBL[formula][gtype]['i'];
+
+    html += '<div class="pg-grid-block">';
+    html += '<div class="pg-grid-label">' + kln + ' <span class="pg-type-badge pg-type-' + gtype + '">Type ' + gtype + '</span></div>';
+    html += '<div class="pg-chord-grid">';
+    html += '<div class="pg-chord-header">' + kln + ' — ' + iiSy + ' · ' + vSy + ' · ' + iSy + '</div>';
+    html += '<table><tr><th>' + iiSy + '</th><th>' + vSy + '</th><th>' + iSy + '</th></tr>';
+    for (var row = 3; row >= 0; row--) {
+      var bot = (row === 0), c = bot ? ' class="pg-bot"' : '';
+      html += '<tr>';
+      html += '<td' + c + '>' + iiV[row].name + '<span class="pg-iv">' + iiL[row] + '</span></td>';
+      html += '<td' + c + '>' + vV[row].name  + '<span class="pg-iv">' + vL[row]  + '</span></td>';
+      html += '<td' + c + '>' + iV[row].name  + '<span class="pg-iv">' + iL[row]  + '</span></td>';
+      html += '</tr>';
+    }
+    html += '</table></div>';
+
+    // Connector
+    if (g < seq.length - 1) {
+      var nkr   = seq[g+1].key;
+      var ntype = seq[g+1].type;
+      var nkln  = KEY_NAMES[nkr] + ' minor';
+      var niiV  = getVoices(nkr, formula, ntype, 'ii');
+      var niiSy = sym(nkr, formula, ntype, 'ii');
+      var iMidi   = voiceMidi(gkr, formula, gtype, 'i');
+      var niiMidi = voiceMidi(nkr, formula, ntype, 'ii');
+      var ruleCls  = switches ? 'pg-rule-switch' : 'pg-rule-stay';
+      var ruleText = switches ? 'A↔B' : 'same type';
+      html += '<div class="pg-connector">';
+      html += dirArrow + ' ' + ivLabel + ' — <strong>' + nkln + '</strong> <span class="' + ruleCls + '">' + ruleText + '</span>&nbsp;';
+      for (var v = 0; v < 4; v++) {
+        var st  = niiMidi[v] - iMidi[v];
+        var abs = Math.abs(st), up = st > 0;
+        var mv  = st === 0 ? '=' : (up ? '↑' : '↓') + ({1:'½',2:'W',3:'m3',4:'M3',5:'4th',7:'5th',8:'m6',9:'M6',12:'8ve'}[abs]||abs+'st');
+        var cls = st === 0 ? 'pg-mv-stay' : (abs >= 4 ? 'pg-mv-jump' : (up ? 'pg-mv-up' : 'pg-mv-down'));
+        html += '<span class="pg-fmove"><span class="pg-fn">' + fingers[v] + '</span>';
+        html += iV[v].name + '→' + niiV[v].name;
+        html += ' <span class="' + cls + '">' + mv + '</span></span> ';
+      }
+      html += '</div>';
+    }
+
+    html += '</div>'; // pg-grid-block
+  }
+  return html;
+}
+
+function printAllKeys() {
+  var dirStr   = S.dir === 'down' ? '↓ down' : '↑ up';
+  var config   = 'Type ' + S.type + ' · Formula ' + S.formula + ' · ' + S.grids + ' grid' + (S.grids > 1 ? 's' : '') + ' · ' + S.interval + ' ' + dirStr;
+
+  var printCSS = `
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 10px; background: #fff; padding: 12mm; }
+    h1 { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .pg-config { font-size: 10px; color: #555; margin-bottom: 10px; }
+    .pg-keys-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .pg-key-cell { break-inside: avoid; }
+    .pg-grid-block { margin-bottom: 0; }
+    .pg-grid-label { font-size: 9px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
+    .pg-type-badge { font-size: 8px; font-weight: 700; padding: 1px 5px; border-radius: 3px; }
+    .pg-type-A { background: #1a4a7a; color: #d0e8f8; }
+    .pg-type-B { background: #2c2c2a; color: #e8e8e6; }
+    .pg-chord-grid { border: 1.5px solid #333; border-radius: 3px; overflow: hidden; width: 100%; }
+    .pg-chord-header { background: #333; color: #fff; font-size: 9px; font-weight: 600; padding: 3px 6px; text-align: center; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #eee; font-size: 8px; font-weight: 600; padding: 2px 4px; text-align: center; border-bottom: 1px solid #ccc; color: #333; }
+    td { padding: 3px 4px; text-align: center; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 500; color: #111; }
+    tr:last-child td { border-bottom: none; }
+    td.pg-bot { background: #f5f5f5; font-weight: 700; color: #990000; }
+    .pg-iv { font-size: 7px; color: #888; display: block; font-weight: 400; }
+    .pg-connector { font-size: 8px; color: #555; margin: 4px 0 4px 2px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+    .pg-fmove { display: inline-flex; align-items: center; gap: 2px; background: #f5f5f5; border: 0.5px solid #ddd; border-radius: 4px; padding: 1px 4px; }
+    .pg-fn { font-size: 7px; font-weight: 700; background: #333; color: #fff; border-radius: 2px; padding: 0 3px; }
+    .pg-mv-stay { color: #bbb; }
+    .pg-mv-up   { color: #1a6a1a; font-weight: 700; }
+    .pg-mv-down { color: #900;    font-weight: 700; }
+    .pg-mv-jump { color: #8a5000; font-weight: 700; }
+    .pg-rule-switch { background: #fff3e0; border: 0.5px solid #d4a030; color: #8a5000; font-size: 7px; border-radius: 3px; padding: 0 4px; }
+    .pg-rule-stay   { background: #e8f4e8; border: 0.5px solid #4a8a4a; color: #2a5a2a; font-size: 7px; border-radius: 3px; padding: 0 4px; }
+    @page { margin: 10mm; size: A4 landscape; }
+    @media print { body { padding: 0; } }
+  `;
+
+  // Build 12 cells — one per starting key
+  var cellsHTML = '';
+  for (var k = 0; k < 12; k++) {
+    cellsHTML += '<div class="pg-key-cell">';
+    cellsHTML += buildGridHTML(k, S.type, S.formula, S.grids, S.interval, S.dir);
+    cellsHTML += '</div>';
+  }
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Minor ii-V-i — All 12 Keys</title>'
+    + '<style>' + printCSS + '</style></head><body>'
+    + '<h1>Minor ii-V-i — All 12 Keys</h1>'
+    + '<div class="pg-config">' + config + '</div>'
+    + '<div class="pg-keys-grid">' + cellsHTML + '</div>'
+    + '<script>window.onload=function(){window.print();}<\/script>'
+    + '</body></html>';
+
+  // Download as HTML file — works in Claude and any browser
+  var blob = new Blob([html], { type: 'text/html' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'minor-251-all-12-keys.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+}
+
+// ── Build key buttons ─────────────────────────────────────────────────────────
+(function(){
+  var c = document.getElementById('key-btns');
+  KEY_LABELS.forEach(function(label,i){
+    var b=document.createElement('button');
+    b.id='kb-'+i; b.className='btn'+(i===0?' ak':'');
+    b.textContent=label;
+    b.onclick=(function(idx){ return function(){ setKey(idx); }; })(i);
+    c.appendChild(b);
+  });
+})();
+
+render();
+</script>
+</body>
+</html>
