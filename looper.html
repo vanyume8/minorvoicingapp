@@ -68,6 +68,8 @@
   .chip .go { cursor: pointer; color: var(--accent-2); }
   .chip .del { cursor: pointer; color: var(--muted); border: none; background: transparent; padding: 0 4px; font-size: 1rem; line-height: 1; }
   .chip .del:hover { color: var(--accent); }
+  .chip .ren { cursor: pointer; color: var(--muted); font-size: .85rem; }
+  .chip .ren:hover { color: var(--text); }
   .empty { color: var(--muted); font-size: .82rem; }
   .btnrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .hint { font-size: .78rem; color: var(--muted); margin-top: 10px; }
@@ -148,8 +150,9 @@
         </div>
         <div class="countin">
           <label><input type="checkbox" id="countInChk"> Count-in</label>
-          <input type="number" id="countInSecs" min="0" max="8" step="1" value="2" title="Count-in seconds">
-          <span>sec</span>
+          <input type="number" id="countInBpm" min="40" max="300" step="1" value="120" title="Count-in tempo (BPM)">
+          <span>BPM</span>
+          <span style="font-size:.76rem;opacity:.75">· 4-beat</span>
         </div>
         <button id="playBtn">Play / Pause</button>
         <button id="clearBtn">Clear A/B</button>
@@ -337,14 +340,14 @@
   function countInOn() { return document.getElementById('countInChk').checked; }
   function startCountIn() {
     if (countingIn) return;
-    var n = parseInt(document.getElementById('countInSecs').value, 10);
+    var bpm = parseInt(document.getElementById('countInBpm').value, 10);
     player.seekTo(A, true);
-    if (isNaN(n) || n <= 0) { player.playVideo(); return; }
+    if (isNaN(bpm) || bpm <= 0) { player.playVideo(); return; }
     countingIn = true; resumeAudio(); player.pauseVideo();
-    var i = 0;
+    var interval = 60000 / bpm, beats = 4, i = 0;   // one bar of 4, accent on beat 1
     (function step() {
       if (!countingIn) return;
-      if (i < n) { clickTone(i === n - 1); i++; setTimeout(step, 1000); }
+      if (i < beats) { clickTone(i === 0); i++; setTimeout(step, interval); }
       else { countingIn = false; player.playVideo(); }
     })();
   }
@@ -395,10 +398,11 @@
     list.innerHTML = '';
     arr.forEach(function (p, idx) {
       var chip = document.createElement('span'); chip.className = 'chip';
-      chip.innerHTML = '<span class="nm"></span><span class="rng"></span><span class="go" title="Load this loop">▶</span><button class="del" title="Delete">×</button>';
+      chip.innerHTML = '<span class="nm"></span><span class="rng"></span><span class="go" title="Load this loop">▶</span><span class="ren" title="Rename">✎</span><button class="del" title="Delete">×</button>';
       chip.querySelector('.nm').textContent = p.name || ('Loop ' + (idx + 1));
       chip.querySelector('.rng').textContent = fmtShort(p.a) + '–' + fmtShort(p.b);
       chip.querySelector('.go').onclick = function () { recallLoop(videoId, idx); };
+      chip.querySelector('.ren').onclick = function () { renameLoop(videoId, idx); };
       chip.querySelector('.del').onclick = function () { deleteLoop(videoId, idx); };
       list.appendChild(chip);
     });
@@ -408,6 +412,15 @@
     var lib = loadLib(); var s = lib.songs[songId]; if (!s) return;
     s.loops.splice(idx, 1);
     if (!s.loops.length) delete lib.songs[songId];
+    saveLib(lib); renderPresets(); renderLibrary();
+  }
+
+  function renameLoop(songId, idx) {
+    var lib = loadLib(); var s = lib.songs[songId]; if (!s || !s.loops[idx]) return;
+    var cur = s.loops[idx].name || ('Loop ' + (idx + 1));
+    var name = prompt('Rename loop:', cur);
+    if (name === null) return;
+    s.loops[idx].name = (name.trim() || cur).slice(0, 60);
     saveLib(lib); renderPresets(); renderLibrary();
   }
 
@@ -446,10 +459,11 @@
       var loops = document.createElement('div'); loops.className = 'tree-loops';
       s.loops.forEach(function (lp, i) {
         var row = document.createElement('div'); row.className = 'tree-loop';
-        row.innerHTML = '<span class="lp-nm"></span><span class="lp-rng"></span><button class="go">▶ Load</button><button class="del">×</button>';
+        row.innerHTML = '<span class="lp-nm"></span><span class="lp-rng"></span><button class="go">▶ Load</button><button class="ren">Rename</button><button class="del">×</button>';
         row.querySelector('.lp-nm').textContent = lp.name || ('Loop ' + (i + 1));
         row.querySelector('.lp-rng').textContent = fmtShort(lp.a) + '–' + fmtShort(lp.b) + (lp.speed && lp.speed !== 1 ? '  ' + lp.speed + '×' : '');
         row.querySelector('.go').onclick = function () { recallLoop(id, i); };
+        row.querySelector('.ren').onclick = function () { renameLoop(id, i); };
         row.querySelector('.del').onclick = function () { deleteLoop(id, i); };
         loops.appendChild(row);
       });
