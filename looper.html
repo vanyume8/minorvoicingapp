@@ -13,7 +13,11 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.4; }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 18px 60px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 18px 18px 60px; }
+  .topbar { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .topbar a { color: var(--muted); font-size: .8rem; text-decoration: none; border: 1px solid var(--line);
+    padding: 4px 10px; border-radius: 8px; }
+  .topbar a:hover { background: var(--panel-2); color: var(--text); }
   h1 { font-size: 1.35rem; margin: 0 0 4px; font-weight: 650; }
   .sub { color: var(--muted); font-size: .85rem; margin: 0 0 20px; }
   .loadbar { display: flex; gap: 8px; margin-bottom: 18px; }
@@ -26,6 +30,7 @@
   button:active { transform: translateY(1px); }
   button.primary { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
   button.primary:hover { filter: brightness(1.08); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
   .playerbox { position: relative; width: 100%; aspect-ratio: 16/9; background: #000;
     border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
   #player, #player iframe { width: 100%; height: 100%; border: 0; display: block; }
@@ -46,7 +51,7 @@
   .abcard .btns button { padding: 7px 9px; font-size: .8rem; flex: 1; }
   .nudge { display: flex; gap: 4px; margin-top: 6px; }
   .nudge button { padding: 5px; font-size: .74rem; flex: 1; background: transparent; }
-  .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  .controls { display: flex; gap: 10px 16px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
   .loop-toggle { display: flex; align-items: center; gap: 8px; }
   .switch { position: relative; width: 46px; height: 26px; }
   .switch input { opacity: 0; width: 0; height: 0; }
@@ -54,11 +59,24 @@
   .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px; background: var(--muted); border-radius: 50%; transition: .2s; }
   .switch input:checked + .slider { background: rgba(62,207,142,.25); border-color: var(--green); }
   .switch input:checked + .slider:before { transform: translateX(20px); background: var(--green); }
+  .countin { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .85rem; }
+  .countin input[type=number] { width: 56px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+    border-radius: 8px; padding: 6px 8px; font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .countin label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
   .speed { margin-top: 16px; }
   .speed-vals { display: flex; gap: 6px; flex-wrap: wrap; }
   .speed-vals button { flex: 1; min-width: 56px; padding: 9px 4px; font-variant-numeric: tabular-nums; }
   .speed-vals button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .speed-slider { width: 100%; margin-top: 12px; accent-color: var(--accent); }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 20px; padding: 6px 6px 6px 12px; font-size: .82rem; }
+  .chip .nm { font-weight: 550; }
+  .chip .rng { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .76rem; }
+  .chip .go { cursor: pointer; color: var(--accent-2); }
+  .chip .del { cursor: pointer; color: var(--muted); border: none; background: transparent; padding: 0 4px; font-size: 1rem; line-height: 1; }
+  .chip .del:hover { color: var(--accent); }
+  .empty { color: var(--muted); font-size: .82rem; }
   .hint { font-size: .78rem; color: var(--muted); margin-top: 10px; }
   kbd { background: var(--panel-2); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; font-size: .75rem; font-family: inherit; }
   .disabled-area { opacity: .45; pointer-events: none; }
@@ -66,6 +84,7 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="topbar"><a href="index.html">← Minor ii-V-i Voicing Explorer</a></div>
   <h1>YouTube Practice Looper</h1>
   <p class="sub">Paste a video link, mark an A–B section, loop it, and slow it down to learn it by ear.</p>
 
@@ -115,9 +134,21 @@
           <label class="switch"><input type="checkbox" id="loopChk"><span class="slider"></span></label>
           <span>Loop A–B</span>
         </div>
+        <div class="countin">
+          <label><input type="checkbox" id="countInChk"> Count-in</label>
+          <input type="number" id="countInSecs" min="0" max="8" step="1" value="2" title="Count-in seconds">
+          <span>sec</span>
+        </div>
         <button id="playBtn">Play / Pause</button>
         <button id="clearBtn">Clear A/B</button>
       </div>
+    </div>
+
+    <div class="panel">
+      <h2>Saved loops <span id="savedFor" style="text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400"></span></h2>
+      <div class="presets" id="presetList"><span class="empty">No saved loops for this video yet.</span></div>
+      <div style="margin-top:12px"><button id="saveLoopBtn" disabled>Save current A–B</button></div>
+      <p class="hint">Saved loops stick to each video — reopen a tune and its passages are waiting here. Stored in this browser.</p>
     </div>
 
     <div class="panel speed">
@@ -141,20 +172,17 @@
 <script>
   var player = null, ready = false, dur = 0;
   var A = null, B = null, looping = false, poll = null;
-  var apiReady = false, pendingId = null;
+  var apiReady = false, pendingId = null, videoId = null, countingIn = false;
   var SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5];
+  var PKEY = 'ytlooper.presets';
 
   function status(msg) { var ph = document.getElementById('ph'); ph.style.display = 'flex'; ph.textContent = msg; }
 
   var tag = document.createElement('script');
   tag.src = "https://www.youtube.com/iframe_api";
-  tag.onerror = function () { status("Couldn't load YouTube's player script — check your internet connection, then reload this file."); };
+  tag.onerror = function () { status("Couldn't load YouTube's player script — check your internet connection, then reload."); };
   document.head.appendChild(tag);
-
-  window.onYouTubeIframeAPIReady = function () {
-    apiReady = true;
-    if (pendingId) { var id = pendingId; pendingId = null; createPlayer(id); }
-  };
+  window.onYouTubeIframeAPIReady = function () { apiReady = true; if (pendingId) { var id = pendingId; pendingId = null; createPlayer(id); } };
 
   function extractId(input) {
     input = input.trim();
@@ -172,7 +200,8 @@
   function loadVideo() {
     var id = extractId(document.getElementById('urlInput').value);
     if (!id) { status("Couldn't find a video ID in that link. Paste a full YouTube URL."); return; }
-    if (player && ready) { player.loadVideoById(id); document.getElementById('ph').style.display = 'none'; resetAB(); return; }
+    videoId = id;
+    if (player && ready) { player.loadVideoById(id); document.getElementById('ph').style.display = 'none'; resetAB(); renderPresets(); return; }
     if (!apiReady || typeof YT === 'undefined' || !YT.Player) { pendingId = id; status("Loading player…"); return; }
     createPlayer(id);
   }
@@ -189,7 +218,7 @@
             document.getElementById('ph').style.display = 'none';
             document.getElementById('tools').classList.remove('disabled-area');
             if (!poll) poll = setInterval(tick, 60);
-            setSpeedButtons();
+            setSpeedButtons(); renderPresets();
           },
           onError: function (e) {
             var m = { 2: "Invalid video ID.", 5: "This video can't play in an embed.",
@@ -207,7 +236,7 @@
   }
 
   function resetAB() {
-    A = null; B = null; looping = false;
+    A = null; B = null; looping = false; countingIn = false;
     var c = document.getElementById('loopChk'); if (c) c.checked = false;
     updateAB();
   }
@@ -218,7 +247,11 @@
     if (!dur) { dur = player.getDuration() || 0; if (dur) document.getElementById('durTime').textContent = fmtShort(dur); }
     document.getElementById('curTime').textContent = fmt(t);
     if (dur) document.getElementById('tlPlay').style.left = (t / dur * 100) + "%";
-    if (looping && A != null && B != null && B > A) { if (t >= B || t < A - 0.05) player.seekTo(A, true); }
+    if (looping && !countingIn && A != null && B != null && B > A) {
+      if (t >= B || t < A - 0.05) {
+        if (countInOn()) startCountIn(); else player.seekTo(A, true);
+      }
+    }
   }
 
   function updateAB() {
@@ -228,6 +261,7 @@
     if (A != null && B != null && dur && B > A) {
       box.style.display = 'block'; box.style.left = (A / dur * 100) + "%"; box.style.width = ((B - A) / dur * 100) + "%";
     } else { box.style.display = 'none'; }
+    document.getElementById('saveLoopBtn').disabled = !(A != null && B != null && B > A);
   }
 
   function clampSet(which, val) {
@@ -237,6 +271,72 @@
     updateAB();
   }
 
+  // ---- Count-in ----
+  var actx = null;
+  function resumeAudio() { try { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) {} }
+  function clickTone(accent) {
+    try {
+      if (!actx) return;
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.frequency.value = accent ? 1600 : 1000; o.connect(g); g.connect(actx.destination);
+      var now = actx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.35, now + 0.001);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+      o.start(now); o.stop(now + 0.1);
+    } catch (e) {}
+  }
+  function countInOn() { return document.getElementById('countInChk').checked; }
+  function startCountIn() {
+    if (countingIn) return;
+    var n = parseInt(document.getElementById('countInSecs').value, 10);
+    player.seekTo(A, true);
+    if (isNaN(n) || n <= 0) { player.playVideo(); return; }
+    countingIn = true; resumeAudio(); player.pauseVideo();
+    var i = 0;
+    (function step() {
+      if (!countingIn) return;
+      if (i < n) { clickTone(i === n - 1); i++; setTimeout(step, 1000); }
+      else { countingIn = false; player.playVideo(); }
+    })();
+  }
+
+  // ---- Presets (localStorage, keyed by video) ----
+  function loadAll() { try { return JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { return {}; } }
+  function saveAll(o) { try { localStorage.setItem(PKEY, JSON.stringify(o)); } catch (e) {} }
+  function presetsFor(id) { var a = loadAll()[id]; return Array.isArray(a) ? a : []; }
+  function renderPresets() {
+    var list = document.getElementById('presetList');
+    document.getElementById('savedFor').textContent = videoId ? '· ' + videoId : '';
+    if (!videoId) { list.innerHTML = '<span class="empty">Load a video to see its saved loops.</span>'; return; }
+    var arr = presetsFor(videoId);
+    if (!arr.length) { list.innerHTML = '<span class="empty">No saved loops for this video yet.</span>'; return; }
+    list.innerHTML = '';
+    arr.forEach(function (p, idx) {
+      var chip = document.createElement('span'); chip.className = 'chip';
+      chip.innerHTML = '<span class="nm"></span><span class="rng"></span><span class="go" title="Load this loop">▶</span><button class="del" title="Delete">×</button>';
+      chip.querySelector('.nm').textContent = p.label || ('Loop ' + (idx + 1));
+      chip.querySelector('.rng').textContent = fmtShort(p.a) + '–' + fmtShort(p.b);
+      chip.querySelector('.go').onclick = function () { recallPreset(p); };
+      chip.querySelector('.del').onclick = function () { var all = loadAll(); all[videoId].splice(idx, 1); if (!all[videoId].length) delete all[videoId]; saveAll(all); renderPresets(); };
+      list.appendChild(chip);
+    });
+  }
+  function recallPreset(p) {
+    A = p.a; B = p.b; updateAB();
+    var c = document.getElementById('loopChk'); c.checked = true; looping = true;
+    if (ready) { if (countInOn()) startCountIn(); else { player.seekTo(A, true); player.playVideo(); } }
+  }
+  document.getElementById('saveLoopBtn').onclick = function () {
+    if (A == null || B == null || !videoId) return;
+    var all = loadAll(); if (!all[videoId]) all[videoId] = [];
+    var def = 'Loop ' + (all[videoId].length + 1);
+    var label = prompt('Name this loop:', def); if (label === null) return;
+    all[videoId].push({ a: A, b: B, label: (label || def).slice(0, 40) });
+    saveAll(all); renderPresets();
+  };
+
+  // ---- speed ----
   function setSpeedButtons() {
     var c = document.getElementById('speedVals'); c.innerHTML = '';
     SPEEDS.forEach(function (sp) {
@@ -252,6 +352,7 @@
     document.querySelectorAll('#speedVals button').forEach(function (b) { b.classList.toggle('active', Math.abs(parseFloat(b.dataset.sp) - sp) < 0.001); });
   }
 
+  // ---- wire up ----
   document.getElementById('loadBtn').onclick = loadVideo;
   document.getElementById('urlInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') loadVideo(); });
   document.getElementById('setA').onclick = function () { if (ready) clampSet('a', player.getCurrentTime()); };
@@ -259,7 +360,6 @@
   document.getElementById('goA').onclick = function () { if (ready && A != null) player.seekTo(A, true); };
   document.getElementById('goB').onclick = function () { if (ready && B != null) player.seekTo(B, true); };
   document.getElementById('clearBtn').onclick = resetAB;
-
   document.querySelectorAll('[data-nudge]').forEach(function (btn) {
     btn.onclick = function () {
       var which = btn.dataset.nudge, amt = parseFloat(btn.dataset.amt);
@@ -268,13 +368,16 @@
     };
   });
   document.getElementById('loopChk').addEventListener('change', function (e) {
-    looping = e.target.checked;
-    if (looping && A != null && B != null && ready) { var t = player.getCurrentTime(); if (t < A || t > B) player.seekTo(A, true); }
+    looping = e.target.checked; countingIn = false;
+    if (looping && A != null && B != null && ready) { var t = player.getCurrentTime(); if (t < A || t > B) { if (countInOn()) startCountIn(); else player.seekTo(A, true); } }
   });
   document.getElementById('playBtn').onclick = function () {
     if (!ready) return; var st = player.getPlayerState();
-    if (st === YT.PlayerState.PLAYING) player.pauseVideo(); else player.playVideo();
+    if (st === YT.PlayerState.PLAYING || countingIn) { countingIn = false; player.pauseVideo(); }
+    else if (looping && countInOn() && A != null && B != null) { startCountIn(); }
+    else player.playVideo();
   };
+  document.getElementById('countInChk').addEventListener('change', resumeAudio);
   document.getElementById('speedSlider').addEventListener('input', function (e) { setSpeed(parseFloat(e.target.value)); });
   document.getElementById('timeline').addEventListener('click', function (e) {
     if (!ready || !dur) return; var r = this.getBoundingClientRect(); player.seekTo((e.clientX - r.left) / r.width * dur, true);
