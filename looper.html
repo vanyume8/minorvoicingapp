@@ -15,32 +15,26 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.4; }
   .wrap { max-width: 880px; margin: 0 auto; padding: 18px 18px 60px; }
   .topbar { display: flex; justify-content: flex-end; margin-bottom: 6px; }
-  .topbar a { color: var(--muted); font-size: .8rem; text-decoration: none; border: 1px solid var(--line);
-    padding: 4px 10px; border-radius: 8px; }
+  .topbar a { color: var(--muted); font-size: .8rem; text-decoration: none; border: 1px solid var(--line); padding: 4px 10px; border-radius: 8px; }
   .topbar a:hover { background: var(--panel-2); color: var(--text); }
   h1 { font-size: 1.35rem; margin: 0 0 4px; font-weight: 650; }
   .sub { color: var(--muted); font-size: .85rem; margin: 0 0 20px; }
   .loadbar { display: flex; gap: 8px; margin-bottom: 18px; }
-  .loadbar input { flex: 1; background: var(--panel); border: 1px solid var(--line);
-    color: var(--text); padding: 11px 13px; border-radius: 10px; font-size: .9rem; }
+  .loadbar input { flex: 1; background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: 11px 13px; border-radius: 10px; font-size: .9rem; }
   .loadbar input:focus { outline: none; border-color: var(--accent-2); }
-  button { cursor: pointer; border-radius: 10px; font-size: .88rem; font-weight: 550;
-    color: var(--text); background: var(--panel-2); border: 1px solid var(--line); padding: 10px 14px; transition: .12s; }
+  button { cursor: pointer; border-radius: 10px; font-size: .88rem; font-weight: 550; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); padding: 10px 14px; transition: .12s; }
   button:hover { background: #2a2f3a; }
   button:active { transform: translateY(1px); }
   button.primary { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
   button.primary:hover { filter: brightness(1.08); }
   button:disabled { opacity: .4; cursor: not-allowed; }
-  .playerbox { position: relative; width: 100%; aspect-ratio: 16/9; background: #000;
-    border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+  .playerbox { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
   #player, #player iframe { width: 100%; height: 100%; border: 0; display: block; }
-  .placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    color: var(--muted); font-size: .9rem; text-align: center; padding: 20px; }
+  .placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: .9rem; text-align: center; padding: 20px; }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-top: 16px; }
   .panel h2 { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
   .timeline { position: relative; height: 44px; margin: 6px 0 14px; background: var(--panel-2); border-radius: 8px; cursor: pointer; overflow: hidden; }
-  .tl-loop { position: absolute; top: 0; bottom: 0; background: rgba(79,156,255,.22);
-    border-left: 2px solid var(--accent-2); border-right: 2px solid var(--accent-2); pointer-events: none; }
+  .tl-loop { position: absolute; top: 0; bottom: 0; background: rgba(79,156,255,.22); border-left: 2px solid var(--accent-2); border-right: 2px solid var(--accent-2); pointer-events: none; }
   .tl-play { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); pointer-events: none; }
   .times { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; font-size: .8rem; color: var(--muted); }
   .abrow { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
@@ -60,8 +54,7 @@
   .switch input:checked + .slider { background: rgba(62,207,142,.25); border-color: var(--green); }
   .switch input:checked + .slider:before { transform: translateX(20px); background: var(--green); }
   .countin { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .85rem; }
-  .countin input[type=number] { width: 56px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
-    border-radius: 8px; padding: 6px 8px; font-size: .85rem; font-variant-numeric: tabular-nums; }
+  .countin input[type=number] { width: 56px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 8px; font-size: .85rem; font-variant-numeric: tabular-nums; }
   .countin label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
   .speed { margin-top: 16px; }
   .speed-vals { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -69,17 +62,36 @@
   .speed-vals button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .speed-slider { width: 100%; margin-top: 12px; accent-color: var(--accent); }
   .presets { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .chip { display: inline-flex; align-items: center; gap: 8px; background: var(--panel-2); border: 1px solid var(--line);
-    border-radius: 20px; padding: 6px 6px 6px 12px; font-size: .82rem; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 20px; padding: 6px 6px 6px 12px; font-size: .82rem; }
   .chip .nm { font-weight: 550; }
   .chip .rng { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .76rem; }
   .chip .go { cursor: pointer; color: var(--accent-2); }
   .chip .del { cursor: pointer; color: var(--muted); border: none; background: transparent; padding: 0 4px; font-size: 1rem; line-height: 1; }
   .chip .del:hover { color: var(--accent); }
   .empty { color: var(--muted); font-size: .82rem; }
+  .btnrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .hint { font-size: .78rem; color: var(--muted); margin-top: 10px; }
   kbd { background: var(--panel-2); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; font-size: .75rem; font-family: inherit; }
   .disabled-area { opacity: .45; pointer-events: none; }
+  /* Library modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: none; align-items: flex-start; justify-content: center; padding: 40px 16px; z-index: 50; overflow: auto; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; max-width: 640px; width: 100%; padding: 18px; }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .modal-head h2 { margin: 0; font-size: 1.05rem; }
+  .modal-head .x { background: transparent; border: none; color: var(--muted); font-size: 1.3rem; padding: 2px 8px; }
+  .tree-song { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+  .tree-song-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--panel-2); cursor: pointer; }
+  .tree-song-head .tw { color: var(--muted); width: 12px; flex-shrink: 0; }
+  .tree-song-head .ttl { font-weight: 600; font-size: .9rem; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tree-song-head .cnt { color: var(--muted); font-size: .75rem; flex-shrink: 0; }
+  .tree-song-head a.link { color: var(--accent-2); text-decoration: none; font-size: .95rem; flex-shrink: 0; }
+  .tree-loops { display: none; padding: 2px 12px 8px; }
+  .tree-song.open .tree-loops { display: block; }
+  .tree-loop { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-top: 1px solid var(--line); }
+  .tree-loop .lp-nm { flex: 1; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tree-loop .lp-rng { color: var(--muted); font-size: .76rem; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+  .tree-loop button { padding: 4px 9px; font-size: .78rem; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -147,8 +159,13 @@
     <div class="panel">
       <h2>Saved loops <span id="savedFor" style="text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400"></span></h2>
       <div class="presets" id="presetList"><span class="empty">No saved loops for this video yet.</span></div>
-      <div style="margin-top:12px"><button id="saveLoopBtn" disabled>Save current A–B</button></div>
-      <p class="hint">Saved loops stick to each video — reopen a tune and its passages are waiting here. Stored in this browser.</p>
+      <div class="btnrow">
+        <button id="saveLoopBtn" disabled>＋ Save current A–B</button>
+        <button id="libBtn">📁 Library</button>
+        <button id="exportBtn">⤓ Export file</button>
+        <button id="importBtn">⤒ Import file</button>
+      </div>
+      <p class="hint">Each loop remembers its video + URL, so you can jump back to any tune. Loops live in this browser; Export writes them to a <code>.json</code> file you can keep, back up, or re-import on another device.</p>
     </div>
 
     <div class="panel speed">
@@ -169,12 +186,28 @@
   </div>
 </div>
 
+<!-- Library modal -->
+<div class="modal-bg" id="libModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>📁 Loop Library</h2>
+      <button class="x" id="libClose">×</button>
+    </div>
+    <div id="libTree"></div>
+    <div class="btnrow" style="margin-top:14px">
+      <button id="exportBtn2">⤓ Export to file</button>
+      <button id="importBtn2">⤒ Import from file</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="fileInput" accept="application/json,.json" style="display:none">
+
 <script>
   var player = null, ready = false, dur = 0;
   var A = null, B = null, looping = false, poll = null;
-  var apiReady = false, pendingId = null, videoId = null, countingIn = false;
+  var apiReady = false, pendingId = null, videoId = null, countingIn = false, pendingLoop = null;
   var SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5];
-  var PKEY = 'ytlooper.presets';
+  var LKEY = 'ytlooper.library', OLDKEY = 'ytlooper.presets';
 
   function status(msg) { var ph = document.getElementById('ph'); ph.style.display = 'flex'; ph.textContent = msg; }
 
@@ -190,6 +223,7 @@
     var m = input.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/)([\w-]{11})/);
     return m ? m[1] : null;
   }
+  function watchUrl(id) { return "https://www.youtube.com/watch?v=" + id; }
   function fmt(t) {
     if (t == null || isNaN(t)) return "—"; t = Math.max(0, t);
     var m = Math.floor(t / 60), s = Math.floor(t % 60), d = Math.floor((t * 10) % 10);
@@ -218,7 +252,7 @@
             document.getElementById('ph').style.display = 'none';
             document.getElementById('tools').classList.remove('disabled-area');
             if (!poll) poll = setInterval(tick, 60);
-            setSpeedButtons(); renderPresets();
+            setSpeedButtons(); rememberSong(); renderPresets();
           },
           onError: function (e) {
             var m = { 2: "Invalid video ID.", 5: "This video can't play in an embed.",
@@ -228,11 +262,20 @@
             status(m[e.data] || ("Player error (" + e.data + "). Try another video."));
           },
           onStateChange: function (e) {
-            if (e.data === YT.PlayerState.PLAYING) { dur = player.getDuration(); document.getElementById('durTime').textContent = fmtShort(dur); }
+            if (e.data === YT.PlayerState.PLAYING) { dur = player.getDuration(); document.getElementById('durTime').textContent = fmtShort(dur); rememberSong(); }
           }
         }
       });
     } catch (err) { status("Couldn't start the player: " + err.message); }
+  }
+
+  // Current video title, used when saving loops
+  function videoTitle() { try { var d = player.getVideoData(); return (d && d.title) ? d.title : ''; } catch (e) { return ''; } }
+  function rememberSong() {
+    if (!videoId) return;
+    var lib = loadLib(); var s = lib.songs[videoId];
+    var t = videoTitle();
+    if (s) { if (t) s.title = t; s.url = watchUrl(videoId); saveLib(lib); }
   }
 
   function resetAB() {
@@ -243,14 +286,19 @@
 
   function tick() {
     if (!ready || !player.getCurrentTime) return;
+    if (pendingLoop && player.getDuration() > 0) {
+      var pl = pendingLoop; pendingLoop = null;
+      A = pl.a; B = pl.b; updateAB();
+      if (pl.speed) setSpeed(pl.speed);
+      document.getElementById('loopChk').checked = true; looping = true;
+      if (countInOn()) startCountIn(); else { player.seekTo(A, true); player.playVideo(); }
+    }
     var t = player.getCurrentTime();
     if (!dur) { dur = player.getDuration() || 0; if (dur) document.getElementById('durTime').textContent = fmtShort(dur); }
     document.getElementById('curTime').textContent = fmt(t);
     if (dur) document.getElementById('tlPlay').style.left = (t / dur * 100) + "%";
     if (looping && !countingIn && A != null && B != null && B > A) {
-      if (t >= B || t < A - 0.05) {
-        if (countInOn()) startCountIn(); else player.seekTo(A, true);
-      }
+      if (t >= B || t < A - 0.05) { if (countInOn()) startCountIn(); else player.seekTo(A, true); }
     }
   }
 
@@ -301,40 +349,164 @@
     })();
   }
 
-  // ---- Presets (localStorage, keyed by video) ----
-  function loadAll() { try { return JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch (e) { return {}; } }
-  function saveAll(o) { try { localStorage.setItem(PKEY, JSON.stringify(o)); } catch (e) {} }
-  function presetsFor(id) { var a = loadAll()[id]; return Array.isArray(a) ? a : []; }
+  // ---- Library store (localStorage) ----
+  // shape: { songs: { "<id>": { id, title, url, loops: [ {name,a,b,speed} ] } } }
+  function loadLib() {
+    var lib;
+    try { lib = JSON.parse(localStorage.getItem(LKEY) || ''); } catch (e) { lib = null; }
+    if (!lib || !lib.songs) lib = { songs: {} };
+    // one-time migration from the old flat preset store
+    try {
+      var old = JSON.parse(localStorage.getItem(OLDKEY) || '');
+      if (old && typeof old === 'object') {
+        Object.keys(old).forEach(function (id) {
+          if (!lib.songs[id]) lib.songs[id] = { id: id, title: id, url: watchUrl(id), loops: [] };
+          (old[id] || []).forEach(function (p) { lib.songs[id].loops.push({ name: p.label || 'Loop', a: p.a, b: p.b }); });
+        });
+        localStorage.removeItem(OLDKEY); saveLibRaw(lib);
+      }
+    } catch (e) {}
+    return lib;
+  }
+  function saveLibRaw(lib) { try { localStorage.setItem(LKEY, JSON.stringify(lib)); } catch (e) {} }
+  function saveLib(lib) { saveLibRaw(lib); }
+  function loopsFor(id) { var s = loadLib().songs[id]; return s && s.loops ? s.loops : []; }
+
+  function saveCurrentLoop() {
+    if (A == null || B == null || !videoId) return;
+    var lib = loadLib();
+    if (!lib.songs[videoId]) lib.songs[videoId] = { id: videoId, title: videoTitle() || videoId, url: watchUrl(videoId), loops: [] };
+    var song = lib.songs[videoId];
+    if (videoTitle()) song.title = videoTitle();
+    var def = 'Loop ' + (song.loops.length + 1);
+    var label = prompt('Name this loop (' + fmtShort(A) + '–' + fmtShort(B) + '):', def);
+    if (label === null) return;
+    var sp = parseFloat(document.getElementById('speedSlider').value) || 1;
+    song.loops.push({ name: (label || def).slice(0, 60), a: A, b: B, speed: sp });
+    saveLib(lib); renderPresets(); renderLibrary();
+  }
+
   function renderPresets() {
     var list = document.getElementById('presetList');
-    document.getElementById('savedFor').textContent = videoId ? '· ' + videoId : '';
+    document.getElementById('savedFor').textContent = videoId ? '· ' + (videoTitle() || videoId) : '';
     if (!videoId) { list.innerHTML = '<span class="empty">Load a video to see its saved loops.</span>'; return; }
-    var arr = presetsFor(videoId);
+    var arr = loopsFor(videoId);
     if (!arr.length) { list.innerHTML = '<span class="empty">No saved loops for this video yet.</span>'; return; }
     list.innerHTML = '';
     arr.forEach(function (p, idx) {
       var chip = document.createElement('span'); chip.className = 'chip';
       chip.innerHTML = '<span class="nm"></span><span class="rng"></span><span class="go" title="Load this loop">▶</span><button class="del" title="Delete">×</button>';
-      chip.querySelector('.nm').textContent = p.label || ('Loop ' + (idx + 1));
+      chip.querySelector('.nm').textContent = p.name || ('Loop ' + (idx + 1));
       chip.querySelector('.rng').textContent = fmtShort(p.a) + '–' + fmtShort(p.b);
-      chip.querySelector('.go').onclick = function () { recallPreset(p); };
-      chip.querySelector('.del').onclick = function () { var all = loadAll(); all[videoId].splice(idx, 1); if (!all[videoId].length) delete all[videoId]; saveAll(all); renderPresets(); };
+      chip.querySelector('.go').onclick = function () { recallLoop(videoId, idx); };
+      chip.querySelector('.del').onclick = function () { deleteLoop(videoId, idx); };
       list.appendChild(chip);
     });
   }
-  function recallPreset(p) {
-    A = p.a; B = p.b; updateAB();
-    var c = document.getElementById('loopChk'); c.checked = true; looping = true;
-    if (ready) { if (countInOn()) startCountIn(); else { player.seekTo(A, true); player.playVideo(); } }
+
+  function deleteLoop(songId, idx) {
+    var lib = loadLib(); var s = lib.songs[songId]; if (!s) return;
+    s.loops.splice(idx, 1);
+    if (!s.loops.length) delete lib.songs[songId];
+    saveLib(lib); renderPresets(); renderLibrary();
   }
-  document.getElementById('saveLoopBtn').onclick = function () {
-    if (A == null || B == null || !videoId) return;
-    var all = loadAll(); if (!all[videoId]) all[videoId] = [];
-    var def = 'Loop ' + (all[videoId].length + 1);
-    var label = prompt('Name this loop:', def); if (label === null) return;
-    all[videoId].push({ a: A, b: B, label: (label || def).slice(0, 40) });
-    saveAll(all); renderPresets();
-  };
+
+  function applyLoopNow(loop) {
+    A = loop.a; B = loop.b; updateAB();
+    if (loop.speed) setSpeed(loop.speed);
+    document.getElementById('loopChk').checked = true; looping = true;
+    if (countInOn()) startCountIn(); else { player.seekTo(A, true); player.playVideo(); }
+  }
+  function recallLoop(songId, idx) {
+    var s = loadLib().songs[songId]; if (!s) return;
+    var loop = s.loops[idx]; if (!loop) return;
+    closeLib();
+    if (songId === videoId && ready) { applyLoopNow(loop); return; }
+    // different video: load it, then apply once ready
+    document.getElementById('urlInput').value = s.url || watchUrl(songId);
+    pendingLoop = { a: loop.a, b: loop.b, speed: loop.speed };
+    loadVideo();
+  }
+
+  // ---- Library modal view ----
+  function renderLibrary() {
+    var root = document.getElementById('libTree'); var lib = loadLib();
+    var ids = Object.keys(lib.songs).filter(function (id) { return lib.songs[id].loops && lib.songs[id].loops.length; });
+    if (!ids.length) { root.innerHTML = '<p class="empty">No saved loops yet. Mark an A–B section and hit “Save current A–B”.</p>'; return; }
+    root.innerHTML = '';
+    ids.forEach(function (id) {
+      var s = lib.songs[id];
+      var wrap = document.createElement('div'); wrap.className = 'tree-song' + (id === videoId ? ' open' : '');
+      var head = document.createElement('div'); head.className = 'tree-song-head';
+      head.innerHTML = '<span class="tw">▸</span><span class="ttl"></span><span class="cnt"></span><a class="link" title="Open on YouTube" target="_blank" rel="noopener">↗</a>';
+      head.querySelector('.ttl').textContent = s.title || id;
+      head.querySelector('.cnt').textContent = s.loops.length + (s.loops.length === 1 ? ' loop' : ' loops');
+      var a = head.querySelector('a.link'); a.href = s.url || watchUrl(id);
+      a.onclick = function (ev) { ev.stopPropagation(); };
+      var loops = document.createElement('div'); loops.className = 'tree-loops';
+      s.loops.forEach(function (lp, i) {
+        var row = document.createElement('div'); row.className = 'tree-loop';
+        row.innerHTML = '<span class="lp-nm"></span><span class="lp-rng"></span><button class="go">▶ Load</button><button class="del">×</button>';
+        row.querySelector('.lp-nm').textContent = lp.name || ('Loop ' + (i + 1));
+        row.querySelector('.lp-rng').textContent = fmtShort(lp.a) + '–' + fmtShort(lp.b) + (lp.speed && lp.speed !== 1 ? '  ' + lp.speed + '×' : '');
+        row.querySelector('.go').onclick = function () { recallLoop(id, i); };
+        row.querySelector('.del').onclick = function () { deleteLoop(id, i); };
+        loops.appendChild(row);
+      });
+      head.onclick = function () { wrap.classList.toggle('open'); head.querySelector('.tw').textContent = wrap.classList.contains('open') ? '▾' : '▸'; };
+      head.querySelector('.tw').textContent = wrap.classList.contains('open') ? '▾' : '▸';
+      wrap.appendChild(head); wrap.appendChild(loops); root.appendChild(wrap);
+    });
+  }
+  function openLib() { renderLibrary(); document.getElementById('libModal').classList.add('open'); }
+  function closeLib() { document.getElementById('libModal').classList.remove('open'); }
+
+  // ---- Export / Import to a real file ----
+  async function exportFile() {
+    var data = JSON.stringify(loadLib(), null, 2);
+    var fname = 'jazz-practice-loops.json';
+    if (window.showSaveFilePicker) {
+      try {
+        var h = await window.showSaveFilePicker({ suggestedName: fname, types: [{ description: 'Loop library', accept: { 'application/json': ['.json'] } }] });
+        var w = await h.createWritable(); await w.write(data); await w.close(); return;
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    var blob = new Blob([data], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+  function mergeLib(incoming) {
+    if (!incoming || !incoming.songs) throw new Error('bad');
+    var lib = loadLib();
+    Object.keys(incoming.songs).forEach(function (id) {
+      var src = incoming.songs[id]; if (!src || !src.loops) return;
+      if (!lib.songs[id]) lib.songs[id] = { id: id, title: src.title || id, url: src.url || watchUrl(id), loops: [] };
+      var dst = lib.songs[id];
+      if (src.title) dst.title = src.title; if (src.url) dst.url = src.url;
+      src.loops.forEach(function (lp) {
+        var dup = dst.loops.some(function (x) { return Math.abs(x.a - lp.a) < 0.05 && Math.abs(x.b - lp.b) < 0.05; });
+        if (!dup) dst.loops.push({ name: lp.name || 'Loop', a: lp.a, b: lp.b, speed: lp.speed });
+      });
+    });
+    saveLib(lib);
+  }
+  async function importFile() {
+    if (window.showOpenFilePicker) {
+      try {
+        var hs = await window.showOpenFilePicker({ types: [{ description: 'Loop library', accept: { 'application/json': ['.json'] } }] });
+        var f = await hs[0].getFile(); var text = await f.text();
+        mergeLib(JSON.parse(text)); renderPresets(); renderLibrary();
+      } catch (e) { if (e && e.name === 'AbortError') return; alert("That file isn't a valid loop library."); }
+      return;
+    }
+    document.getElementById('fileInput').click(); // fallback
+  }
+  document.getElementById('fileInput').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () { try { mergeLib(JSON.parse(r.result)); renderPresets(); renderLibrary(); } catch (x) { alert("That file isn't a valid loop library."); } };
+    r.readAsText(f); e.target.value = '';
+  });
 
   // ---- speed ----
   function setSpeedButtons() {
@@ -360,6 +532,14 @@
   document.getElementById('goA').onclick = function () { if (ready && A != null) player.seekTo(A, true); };
   document.getElementById('goB').onclick = function () { if (ready && B != null) player.seekTo(B, true); };
   document.getElementById('clearBtn').onclick = resetAB;
+  document.getElementById('saveLoopBtn').onclick = saveCurrentLoop;
+  document.getElementById('libBtn').onclick = openLib;
+  document.getElementById('libClose').onclick = closeLib;
+  document.getElementById('libModal').addEventListener('click', function (e) { if (e.target === this) closeLib(); });
+  document.getElementById('exportBtn').onclick = exportFile;
+  document.getElementById('importBtn').onclick = importFile;
+  document.getElementById('exportBtn2').onclick = exportFile;
+  document.getElementById('importBtn2').onclick = importFile;
   document.querySelectorAll('[data-nudge]').forEach(function (btn) {
     btn.onclick = function () {
       var which = btn.dataset.nudge, amt = parseFloat(btn.dataset.amt);
@@ -384,7 +564,9 @@
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.target.tagName === 'INPUT') return; if (!ready) return;
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'Escape') { closeLib(); return; }
+    if (!ready) return;
     var k = e.key.toLowerCase();
     if (k === ' ') { e.preventDefault(); document.getElementById('playBtn').click(); }
     else if (k === 'a') clampSet('a', player.getCurrentTime());
