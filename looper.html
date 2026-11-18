@@ -103,6 +103,30 @@
   .tree-loop .lp-nm { flex: 1; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tree-loop .lp-rng { color: var(--muted); font-size: .76rem; font-variant-numeric: tabular-nums; flex-shrink: 0; }
   .tree-loop button { padding: 4px 9px; font-size: .78rem; flex-shrink: 0; }
+  /* Tabs + playlists */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tabs button { flex: 1; padding: 8px; font-size: .82rem; }
+  .tabs button.active { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .pl-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .pl-tab { cursor: pointer; padding: 6px 12px; border: 1px solid var(--line); border-radius: 18px; font-size: .82rem; background: var(--panel-2); }
+  .pl-tab.active { background: rgba(79,156,255,.18); border-color: var(--accent-2); color: var(--text); }
+  .pl-head { display: flex; align-items: center; gap: 8px; margin: 6px 0 10px; flex-wrap: wrap; }
+  .pl-head .pl-name { font-weight: 650; font-size: 1rem; flex: 1; min-width: 120px; }
+  .pl-head button { padding: 5px 10px; font-size: .78rem; }
+  .pl-items { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .pl-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; }
+  .pl-item.dragging { opacity: .45; border-color: var(--accent-2); }
+  .pl-item .grip { cursor: grab; color: var(--muted); font-size: 1.05rem; touch-action: none; user-select: none; }
+  .pl-item .pl-i-nm { flex: 1; font-size: .86rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pl-item .pl-i-sub { color: var(--muted); font-size: .74rem; flex-shrink: 0; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pl-item button { padding: 4px 9px; font-size: .78rem; flex-shrink: 0; }
+  .pl-add { border-top: 1px solid var(--line); padding-top: 10px; }
+  .pl-add h4 { margin: 0 0 8px; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .pl-pick { display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow: auto; }
+  .pk-song { color: var(--muted); font-size: .72rem; margin: 8px 0 2px; font-weight: 600; }
+  .pk-loop { display: flex; align-items: center; gap: 8px; padding: 5px 2px; }
+  .pk-loop .pk-nm { flex: 1; font-size: .83rem; }
+  .pk-loop button { padding: 3px 9px; font-size: .78rem; }
 </style>
 </head>
 <body>
@@ -177,7 +201,19 @@
         <button id="exportBtn">⤓ Export file</button>
         <button id="importBtn">⤒ Import file</button>
       </div>
-      <p class="hint">Each loop remembers its video + URL, so you can jump back to any tune. Loops live in this browser; Export writes them to a <code>.json</code> file you can keep, back up, or re-import on another device.</p>
+      <p class="hint">Each loop remembers its video + URL, so you can jump back to any tune. Loops live in this browser; Export writes them to a <code>.json</code> file you can keep, back up, or re-import on another device. Build ordered practice sets under <strong>Library → Playlists</strong>.</p>
+    </div>
+
+    <div class="panel" id="plBar" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)">▶ Playlist</span>
+        <span id="plBarName" style="font-weight:600"></span>
+        <span id="plBarPos" style="color:var(--muted);font-variant-numeric:tabular-nums;font-size:.82rem"></span>
+        <span style="flex:1"></span>
+        <button id="plBarPrev">⏮ Prev</button>
+        <button id="plBarNext">Next ⏭</button>
+        <button id="plBarStop" title="Stop stepping through the playlist">✕</button>
+      </div>
     </div>
 
     <div class="panel speed">
@@ -205,7 +241,17 @@
       <h2>📁 Loop Library</h2>
       <button class="x" id="libClose">×</button>
     </div>
-    <div id="libTree"></div>
+    <div class="tabs">
+      <button id="tabSongs" class="active">By song</button>
+      <button id="tabPlaylists">Playlists</button>
+    </div>
+    <div id="viewSongs">
+      <div id="libTree"></div>
+    </div>
+    <div id="viewPlaylists" style="display:none">
+      <div class="pl-list" id="plListTabs"></div>
+      <div id="plEditor"></div>
+    </div>
     <div class="btnrow" style="margin-top:14px">
       <button id="exportBtn2">⤓ Export to file</button>
       <button id="importBtn2">⤒ Import from file</button>
@@ -378,8 +424,15 @@
         localStorage.removeItem(OLDKEY); saveLibRaw(lib);
       }
     } catch (e) {}
+    if (!Array.isArray(lib.playlists)) lib.playlists = [];
+    var _ch = false;   // ensure every loop has a stable id (for playlists to reference)
+    Object.keys(lib.songs).forEach(function (sid) {
+      (lib.songs[sid].loops || []).forEach(function (lp) { if (!lp.id) { lp.id = uid(); _ch = true; } });
+    });
+    if (_ch) saveLibRaw(lib);
     return lib;
   }
+  function uid() { return 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   function saveLibRaw(lib) { try { localStorage.setItem(LKEY, JSON.stringify(lib)); } catch (e) {} }
   function saveLib(lib) { saveLibRaw(lib); }
   function loopsFor(id) { var s = loadLib().songs[id]; return s && s.loops ? s.loops : []; }
@@ -394,8 +447,8 @@
     var label = prompt('Name this loop (' + fmtShort(A) + '–' + fmtShort(B) + '):', def);
     if (label === null) return;
     var sp = parseFloat(document.getElementById('speedSlider').value) || 1;
-    song.loops.push({ name: (label || def).slice(0, 60), a: A, b: B, speed: sp });
-    saveLib(lib); renderPresets(); renderLibrary();
+    song.loops.push({ id: uid(), name: (label || def).slice(0, 60), a: A, b: B, speed: sp });
+    saveLib(lib); renderPresets(); renderLibrary(); renderPlaylists();
   }
 
   function renderPresets() {
@@ -418,10 +471,12 @@
   }
 
   function deleteLoop(songId, idx) {
-    var lib = loadLib(); var s = lib.songs[songId]; if (!s) return;
+    var lib = loadLib(); var s = lib.songs[songId]; if (!s || !s.loops[idx]) return;
+    var removedId = s.loops[idx].id;
     s.loops.splice(idx, 1);
     if (!s.loops.length) delete lib.songs[songId];
-    saveLib(lib); renderPresets(); renderLibrary();
+    (lib.playlists || []).forEach(function (pl) { pl.items = pl.items.filter(function (lid) { return lid !== removedId; }); });
+    saveLib(lib); renderPresets(); renderLibrary(); renderPlaylists();
   }
 
   function renameLoop(songId, idx) {
@@ -430,7 +485,7 @@
     var name = prompt('Rename loop:', cur);
     if (name === null) return;
     s.loops[idx].name = (name.trim() || cur).slice(0, 60);
-    saveLib(lib); renderPresets(); renderLibrary();
+    saveLib(lib); renderPresets(); renderLibrary(); renderPlaylists();
   }
 
   function applyLoopNow(loop) {
@@ -481,8 +536,176 @@
       wrap.appendChild(head); wrap.appendChild(loops); root.appendChild(wrap);
     });
   }
-  function openLib() { renderLibrary(); document.getElementById('libModal').classList.add('open'); }
+  function openLib() { renderLibrary(); renderPlaylists(); document.getElementById('libModal').classList.add('open'); }
   function closeLib() { document.getElementById('libModal').classList.remove('open'); }
+  function switchTab(which) {
+    var s = which === 'songs';
+    document.getElementById('tabSongs').classList.toggle('active', s);
+    document.getElementById('tabPlaylists').classList.toggle('active', !s);
+    document.getElementById('viewSongs').style.display = s ? '' : 'none';
+    document.getElementById('viewPlaylists').style.display = s ? 'none' : '';
+    if (!s) renderPlaylists();
+  }
+
+  // ---- Playlists ----
+  var curPlaylistId = null;                 // playlist open in the editor
+  var playCursor = { plId: null, idx: 0 };  // which playlist is being stepped through
+
+  function findLoop(loopId) {
+    var lib = loadLib(), res = null;
+    Object.keys(lib.songs).forEach(function (sid) {
+      (lib.songs[sid].loops || []).forEach(function (lp, i) { if (lp.id === loopId) res = { songId: sid, song: lib.songs[sid], loop: lp, index: i }; });
+    });
+    return res;
+  }
+  function recallLoopById(loopId) { var f = findLoop(loopId); if (f) recallLoop(f.songId, f.index); }
+
+  function newPlaylist() {
+    var lib = loadLib();
+    var name = prompt('Name this playlist:', 'Playlist ' + (lib.playlists.length + 1));
+    if (name === null) return;
+    var pl = { id: uid(), name: (name.trim() || 'Playlist').slice(0, 60), items: [] };
+    lib.playlists.push(pl); saveLib(lib); curPlaylistId = pl.id; renderPlaylists();
+  }
+  function renamePlaylist(plId) {
+    var lib = loadLib(); var pl = lib.playlists.filter(function (p) { return p.id === plId; })[0]; if (!pl) return;
+    var name = prompt('Rename playlist:', pl.name); if (name === null) return;
+    pl.name = (name.trim() || pl.name).slice(0, 60); saveLib(lib); renderPlaylists();
+  }
+  function deletePlaylist(plId) {
+    var lib = loadLib(); lib.playlists = lib.playlists.filter(function (p) { return p.id !== plId; });
+    if (curPlaylistId === plId) curPlaylistId = null;
+    if (playCursor.plId === plId) { playCursor.plId = null; updatePlaylistBar(); }
+    saveLib(lib); renderPlaylists();
+  }
+  function addToPlaylist(plId, loopId) {
+    var lib = loadLib(); var pl = lib.playlists.filter(function (p) { return p.id === plId; })[0]; if (!pl) return;
+    pl.items.push(loopId); saveLib(lib); renderPlaylists();
+  }
+  function removeFromPlaylist(plId, idx) {
+    var lib = loadLib(); var pl = lib.playlists.filter(function (p) { return p.id === plId; })[0]; if (!pl) return;
+    pl.items.splice(idx, 1); saveLib(lib); renderPlaylists();
+  }
+  function setPlaylistOrder(plId, loopIds) {
+    var lib = loadLib(); var pl = lib.playlists.filter(function (p) { return p.id === plId; })[0]; if (!pl) return;
+    pl.items = loopIds; saveLib(lib);
+  }
+  function playPlaylistFrom(plId, idx) {
+    var pl = loadLib().playlists.filter(function (p) { return p.id === plId; })[0]; if (!pl || !pl.items.length) return;
+    playCursor = { plId: plId, idx: Math.max(0, Math.min(idx, pl.items.length - 1)) };
+    updatePlaylistBar(); recallLoopById(pl.items[playCursor.idx]);
+  }
+  function stepPlaylist(delta) {
+    if (!playCursor.plId) return;
+    var pl = loadLib().playlists.filter(function (p) { return p.id === playCursor.plId; })[0];
+    if (!pl || !pl.items.length) { playCursor.plId = null; updatePlaylistBar(); return; }
+    playCursor.idx = (playCursor.idx + delta + pl.items.length) % pl.items.length;
+    updatePlaylistBar(); recallLoopById(pl.items[playCursor.idx]);
+  }
+  function updatePlaylistBar() {
+    var bar = document.getElementById('plBar');
+    if (!playCursor.plId) { bar.style.display = 'none'; return; }
+    var pl = loadLib().playlists.filter(function (p) { return p.id === playCursor.plId; })[0];
+    if (!pl || !pl.items.length) { bar.style.display = 'none'; playCursor.plId = null; return; }
+    var f = findLoop(pl.items[playCursor.idx]);
+    document.getElementById('plBarName').textContent = pl.name;
+    document.getElementById('plBarPos').textContent = (playCursor.idx + 1) + '/' + pl.items.length + (f ? ' · ' + (f.loop.name || 'Loop') : '');
+    bar.style.display = 'block';
+  }
+
+  function renderPlaylists() {
+    var lib = loadLib();
+    var tabs = document.getElementById('plListTabs'); if (!tabs) return;
+    tabs.innerHTML = '';
+    lib.playlists.forEach(function (pl) {
+      var t = document.createElement('span'); t.className = 'pl-tab' + (pl.id === curPlaylistId ? ' active' : '');
+      t.textContent = pl.name + ' (' + pl.items.length + ')';
+      t.onclick = function () { curPlaylistId = pl.id; renderPlaylists(); };
+      tabs.appendChild(t);
+    });
+    var mk = document.createElement('span'); mk.className = 'pl-tab'; mk.style.borderStyle = 'dashed';
+    mk.textContent = '＋ New playlist'; mk.onclick = newPlaylist; tabs.appendChild(mk);
+
+    var ed = document.getElementById('plEditor');
+    if (!lib.playlists.length) { ed.innerHTML = '<p class="empty">No playlists yet. Make one, then add loops and drag them into the order you want.</p>'; return; }
+    if (!curPlaylistId || !lib.playlists.some(function (p) { return p.id === curPlaylistId; })) curPlaylistId = lib.playlists[0].id;
+    var pl = lib.playlists.filter(function (p) { return p.id === curPlaylistId; })[0];
+
+    ed.innerHTML = '';
+    var head = document.createElement('div'); head.className = 'pl-head';
+    head.innerHTML = '<span class="pl-name"></span><button class="plPlay primary">▶ Play set</button><button class="plRen">Rename</button><button class="plDel">Delete</button>';
+    head.querySelector('.pl-name').textContent = pl.name;
+    head.querySelector('.plPlay').onclick = function () { playPlaylistFrom(pl.id, 0); };
+    head.querySelector('.plRen').onclick = function () { renamePlaylist(pl.id); };
+    head.querySelector('.plDel').onclick = function () { if (confirm('Delete playlist "' + pl.name + '"?')) deletePlaylist(pl.id); };
+    ed.appendChild(head);
+
+    var items = document.createElement('div'); items.className = 'pl-items';
+    if (!pl.items.length) {
+      var e = document.createElement('p'); e.className = 'empty'; e.textContent = 'Empty — add loops from the list below, then drag ⠿ to reorder.'; ed.appendChild(items); items.appendChild(e);
+    } else {
+      pl.items.forEach(function (loopId, i) {
+        var f = findLoop(loopId);
+        var row = document.createElement('div'); row.className = 'pl-item'; row.dataset.loopid = loopId;
+        row.innerHTML = '<span class="grip" title="Drag to reorder">⠿</span><span class="pl-i-nm"></span><span class="pl-i-sub"></span><button class="go" title="Play from here">▶</button><button class="rm" title="Remove">×</button>';
+        row.querySelector('.pl-i-nm').textContent = (i + 1) + '. ' + (f ? (f.loop.name || 'Loop') : '(missing loop)');
+        row.querySelector('.pl-i-sub').textContent = f ? (f.song.title || f.songId) : '';
+        row.querySelector('.go').onclick = function () { playPlaylistFrom(pl.id, i); };
+        row.querySelector('.rm').onclick = function () { removeFromPlaylist(pl.id, i); };
+        items.appendChild(row);
+      });
+      ed.appendChild(items);
+      enableDrag(items, pl.id);
+    }
+
+    var add = document.createElement('div'); add.className = 'pl-add';
+    add.innerHTML = '<h4>Add a loop</h4><div class="pl-pick"></div>';
+    ed.appendChild(add);
+    var pick = add.querySelector('.pl-pick');
+    var songIds = Object.keys(lib.songs).filter(function (id) { return lib.songs[id].loops && lib.songs[id].loops.length; });
+    if (!songIds.length) { pick.innerHTML = '<span class="empty">No saved loops yet — save some first.</span>'; return; }
+    songIds.forEach(function (sid) {
+      var s = lib.songs[sid];
+      var h = document.createElement('div'); h.className = 'pk-song'; h.textContent = s.title || sid; pick.appendChild(h);
+      s.loops.forEach(function (lp) {
+        var r = document.createElement('div'); r.className = 'pk-loop';
+        r.innerHTML = '<span class="pk-nm"></span><span class="pl-i-sub"></span><button class="pk-add">＋ Add</button>';
+        r.querySelector('.pk-nm').textContent = lp.name || 'Loop';
+        r.querySelector('.pl-i-sub').textContent = fmtShort(lp.a) + '–' + fmtShort(lp.b);
+        r.querySelector('.pk-add').onclick = function () { addToPlaylist(pl.id, lp.id); };
+        pick.appendChild(r);
+      });
+    });
+  }
+
+  // pointer-based drag reorder — works with mouse and touch
+  function enableDrag(container, plId) {
+    var dragEl = null;
+    function onMove(e) {
+      if (!dragEl) return;
+      var y = e.clientY, after = null;
+      var rows = [].slice.call(container.querySelectorAll('.pl-item:not(.dragging)'));
+      for (var i = 0; i < rows.length; i++) {
+        var box = rows[i].getBoundingClientRect();
+        if (y < box.top + box.height / 2) { after = rows[i]; break; }
+      }
+      if (after == null) container.appendChild(dragEl); else container.insertBefore(dragEl, after);
+    }
+    function onUp() {
+      if (!dragEl) return;
+      dragEl.classList.remove('dragging'); dragEl = null;
+      document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp);
+      var ids = [].map.call(container.querySelectorAll('.pl-item'), function (r) { return r.dataset.loopid; });
+      setPlaylistOrder(plId, ids); renderPlaylists();
+    }
+    container.querySelectorAll('.grip').forEach(function (g) {
+      g.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        dragEl = g.closest('.pl-item'); dragEl.classList.add('dragging');
+        document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp);
+      });
+    });
+  }
 
   // ---- Export / Import to a real file ----
   async function exportFile() {
@@ -508,9 +731,17 @@
       if (src.title) dst.title = src.title; if (src.url) dst.url = src.url;
       src.loops.forEach(function (lp) {
         var dup = dst.loops.some(function (x) { return Math.abs(x.a - lp.a) < 0.05 && Math.abs(x.b - lp.b) < 0.05; });
-        if (!dup) dst.loops.push({ name: lp.name || 'Loop', a: lp.a, b: lp.b, speed: lp.speed });
+        if (!dup) dst.loops.push({ id: lp.id || uid(), name: lp.name || 'Loop', a: lp.a, b: lp.b, speed: lp.speed });
       });
     });
+    if (Array.isArray(incoming.playlists)) {
+      if (!Array.isArray(lib.playlists)) lib.playlists = [];
+      incoming.playlists.forEach(function (p) {
+        if (!p || !p.id) return;
+        if (!lib.playlists.some(function (x) { return x.id === p.id; }))
+          lib.playlists.push({ id: p.id, name: p.name || 'Playlist', items: Array.isArray(p.items) ? p.items.slice() : [] });
+      });
+    }
     saveLib(lib);
   }
   async function importFile() {
@@ -518,7 +749,7 @@
       try {
         var hs = await window.showOpenFilePicker({ types: [{ description: 'Loop library', accept: { 'application/json': ['.json'] } }] });
         var f = await hs[0].getFile(); var text = await f.text();
-        mergeLib(JSON.parse(text)); renderPresets(); renderLibrary();
+        mergeLib(JSON.parse(text)); renderPresets(); renderLibrary(); renderPlaylists();
       } catch (e) { if (e && e.name === 'AbortError') return; alert("That file isn't a valid loop library."); }
       return;
     }
@@ -527,7 +758,7 @@
   document.getElementById('fileInput').addEventListener('change', function (e) {
     var f = e.target.files[0]; if (!f) return;
     var r = new FileReader();
-    r.onload = function () { try { mergeLib(JSON.parse(r.result)); renderPresets(); renderLibrary(); } catch (x) { alert("That file isn't a valid loop library."); } };
+    r.onload = function () { try { mergeLib(JSON.parse(r.result)); renderPresets(); renderLibrary(); renderPlaylists(); } catch (x) { alert("That file isn't a valid loop library."); } };
     r.readAsText(f); e.target.value = '';
   });
 
@@ -563,6 +794,11 @@
   document.getElementById('importBtn').onclick = importFile;
   document.getElementById('exportBtn2').onclick = exportFile;
   document.getElementById('importBtn2').onclick = importFile;
+  document.getElementById('tabSongs').onclick = function () { switchTab('songs'); };
+  document.getElementById('tabPlaylists').onclick = function () { switchTab('playlists'); };
+  document.getElementById('plBarPrev').onclick = function () { stepPlaylist(-1); };
+  document.getElementById('plBarNext').onclick = function () { stepPlaylist(1); };
+  document.getElementById('plBarStop').onclick = function () { playCursor.plId = null; updatePlaylistBar(); };
   document.querySelectorAll('[data-nudge]').forEach(function (btn) {
     btn.onclick = function () {
       var which = btn.dataset.nudge, amt = parseFloat(btn.dataset.amt);
