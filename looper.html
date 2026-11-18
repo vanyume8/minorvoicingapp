@@ -23,9 +23,11 @@
   body { margin: 0; background: var(--bg); color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.4; }
   .wrap { max-width: 880px; margin: 0 auto; padding: 18px 18px 60px; }
-  .topbar { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
   .topbar a { color: var(--muted); font-size: .8rem; text-decoration: none; border: 1px solid var(--line); padding: 4px 10px; border-radius: 8px; }
   .topbar a:hover { background: var(--panel-2); color: var(--text); }
+  .topbar button { font-size: .8rem; padding: 5px 11px; border-color: var(--accent-2); color: var(--accent-2); }
+  .topbar button:hover { background: rgba(79,156,255,.12); }
   h1 { font-size: 1.35rem; margin: 0 0 4px; font-weight: 650; }
   .sub { color: var(--muted); font-size: .85rem; margin: 0 0 20px; }
   .loadbar { display: flex; gap: 8px; margin-bottom: 18px; }
@@ -127,11 +129,23 @@
   .pk-loop { display: flex; align-items: center; gap: 8px; padding: 5px 2px; }
   .pk-loop .pk-nm { flex: 1; font-size: .83rem; }
   .pk-loop button { padding: 3px 9px; font-size: .78rem; }
+  /* User guide */
+  .guide-body h3 { font-size: .95rem; margin: 20px 0 6px; color: var(--text); }
+  .guide-body h3:first-child { margin-top: 0; }
+  .guide-body p { font-size: .86rem; color: var(--text); margin: 0 0 9px; }
+  .guide-body p.lead { color: var(--muted); }
+  .guide-body ul { margin: 0 0 11px; padding-left: 20px; }
+  .guide-body li { font-size: .85rem; margin: 4px 0; }
+  .guide-body code { background: var(--panel-2); padding: 1px 5px; border-radius: 4px; font-size: .82em; }
+  .guide-body .tip { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: .82rem; color: var(--muted); margin: 4px 0 12px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar"><a href="index.html">← Minor ii-V-i Voicing Explorer</a></div>
+  <div class="topbar">
+    <button id="guideBtn">📖 Read me – User Guide</button>
+    <a href="index.html">← Minor ii-V-i Voicing Explorer</a>
+  </div>
   <h1>YouTube Transcriber Looper</h1>
   <p class="sub">Paste a video link, mark an A–B section, loop it, and slow it down to learn it by ear or transcribe.</p>
 
@@ -259,6 +273,78 @@
   </div>
 </div>
 <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
+
+<!-- User guide modal -->
+<div class="modal-bg" id="guideModal">
+  <div class="modal guide">
+    <div class="modal-head">
+      <h2>📖 User Guide</h2>
+      <button class="x" id="guideClose">×</button>
+    </div>
+    <div class="guide-body">
+      <p class="lead">A tool for learning music by ear: loop a short section of any YouTube video, slow it down with the pitch kept correct, and build ordered practice sets.</p>
+
+      <h3>1. Load a video</h3>
+      <p>Paste a YouTube link (or just the video ID) into the box at the top and press <strong>Load</strong>. Press play on the video to start.</p>
+
+      <h3>2. Mark the section (A–B)</h3>
+      <ul>
+        <li>At the start of the passage, click <strong>Set to now</strong> under <strong>A</strong>; at the end, click <strong>Set to now</strong> under <strong>B</strong>.</li>
+        <li>Fine-tune with the <strong>−1s / −0.1 / +0.1 / +1s</strong> nudge buttons to land exactly on the beat.</li>
+        <li><strong>Jump</strong> sends the video to that point. You can also click anywhere on the timeline bar to scrub.</li>
+      </ul>
+
+      <h3>3. Loop it</h3>
+      <p>Flip <strong>Loop A–B</strong> on and the section repeats forever. <strong>Clear A/B</strong> removes the markers.</p>
+
+      <h3>4. Slow it down</h3>
+      <p>Use the <strong>Speed</strong> buttons or slider (0.25×–1.5×). The pitch stays correct, so a slowed passage is still in the original key — ideal for catching fast lines.</p>
+
+      <h3>5. Count-in (optional)</h3>
+      <p>Tick <strong>Count-in</strong> and set a <strong>BPM</strong>. Each time the loop restarts you get a <strong>4-beat count</strong> (accent on beat 1) before the audio, so you can breathe and come in on the downbeat. Untick it for a seamless loop.</p>
+
+      <h3>6. Save loops</h3>
+      <ul>
+        <li>With A and B set, click <strong>＋ Save current A–B</strong> and give the loop a name.</li>
+        <li>Saved loops for the current video appear as chips — <strong>▶</strong> loads one, <strong>✎</strong> renames, <strong>×</strong> deletes.</li>
+        <li>Every loop remembers its video and URL, so you can jump back to any tune later.</li>
+      </ul>
+
+      <h3>7. Library</h3>
+      <p>Open <strong>📁 Library</strong> to see everything, organized two ways:</p>
+      <ul>
+        <li><strong>By song</strong> — each tune is a folder; open it to load or manage its loops, or tap <strong>↗</strong> to open the video on YouTube.</li>
+        <li><strong>Export / Import</strong> — save your whole library to a <code>.json</code> file to back it up or move it to another device (loops live in one browser otherwise).</li>
+      </ul>
+
+      <h3>8. Playlists</h3>
+      <p>Under <strong>Library → Playlists</strong>, build an ordered practice set from loops across different tunes:</p>
+      <ul>
+        <li><strong>＋ New playlist</strong> and name it.</li>
+        <li>In <strong>Add a loop</strong>, every saved loop is listed by name — tap <strong>＋ Add</strong> to include it.</li>
+        <li>Drag the <strong>⠿</strong> handle to reorder items (works with mouse and touch).</li>
+        <li><strong>▶ Play set</strong> runs the loops in order; a <strong>Prev / Next</strong> bar appears on the main screen so you can step through without reopening the Library.</li>
+      </ul>
+
+      <h3>Keyboard shortcuts</h3>
+      <ul>
+        <li><kbd>Space</kbd> play/pause · <kbd>A</kbd> set A · <kbd>B</kbd> set B · <kbd>L</kbd> toggle loop</li>
+        <li><kbd>←</kbd>/<kbd>→</kbd> seek 2s · <kbd>-</kbd>/<kbd>=</kbd> slower/faster</li>
+      </ul>
+
+      <h3>Put it on your phone</h3>
+      <p>In <strong>Safari</strong> on iPhone, tap <strong>Share → Add to Home Screen</strong> to launch it full-screen like an app. (Android: Chrome menu → "Add to Home screen.")</p>
+
+      <div class="tip"><strong>Transcribing tip:</strong> lock the bass and melody first, then loop one chord slowly and sing candidate tones against it — 3rd? 9th? ♯11? — until each note "clicks" into the voicing.</div>
+
+      <h3>Troubleshooting</h3>
+      <ul>
+        <li><strong>Video won't load / "can't be embedded"</strong> — the owner disabled embedding; try another upload of the tune.</li>
+        <li><strong>Loops disappeared</strong> — they're stored per browser. Use <strong>Export</strong> to back them up and <strong>Import</strong> elsewhere.</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 <script>
   var player = null, ready = false, dur = 0;
@@ -799,6 +885,9 @@
   document.getElementById('plBarPrev').onclick = function () { stepPlaylist(-1); };
   document.getElementById('plBarNext').onclick = function () { stepPlaylist(1); };
   document.getElementById('plBarStop').onclick = function () { playCursor.plId = null; updatePlaylistBar(); };
+  document.getElementById('guideBtn').onclick = function () { document.getElementById('guideModal').classList.add('open'); };
+  document.getElementById('guideClose').onclick = function () { document.getElementById('guideModal').classList.remove('open'); };
+  document.getElementById('guideModal').addEventListener('click', function (e) { if (e.target === this) this.classList.remove('open'); });
   document.querySelectorAll('[data-nudge]').forEach(function (btn) {
     btn.onclick = function () {
       var which = btn.dataset.nudge, amt = parseFloat(btn.dataset.amt);
@@ -824,7 +913,7 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.target.tagName === 'INPUT') return;
-    if (e.key === 'Escape') { closeLib(); return; }
+    if (e.key === 'Escape') { closeLib(); document.getElementById('guideModal').classList.remove('open'); return; }
     if (!ready) return;
     var k = e.key.toLowerCase();
     if (k === ' ') { e.preventDefault(); document.getElementById('playBtn').click(); }
